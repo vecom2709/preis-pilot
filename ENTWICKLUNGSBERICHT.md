@@ -89,3 +89,21 @@ Neu bewerten, falls Händler-Feeds mit sehr großen Datenmengen dazukommen.
 2. Betreiberangaben für Impressum und Datenschutz.
 3. Freigabe für die Bilderzeugung mit Kie.ai (Hero-Bild zeigt noch „PreisPilot“ ohne Bindestrich).
 4. Entscheidung über Händler-/Affiliate-Feeds und Monetarisierung.
+
+## Nachtrag 15.11.2026: Rubriken-Design und Einkaufswagen
+
+- Umgesetzt nach Uwes Designbögen:
+  - Startseite „Preis-Pilot | Multimedia“ mit Einkaufs- und violettem Multimedia-Panel.
+  - Neun Rubrikseiten im einheitlichen Vorlagen-Design.
+  - Rubriken-Leiste zum Wechseln.
+  - Einkaufswagen als kleines Fenster, das aus allen Rubriken eine Einkaufsliste macht.
+- Das dunkle Multimedia-Design aus 2.0 ist entfallen: Die Vorlagen zeigen alle Rubriken hell. Die Produktseiten liegen jetzt unter `/[lang]/produkte/…`.
+- Abweichung von der Vorlage: Die Preistabellen der Vorlage zeigen Beispielpreise großer Händler. Echte Preise gibt es nur für Lebensmittel (Open Prices). Die anderen Rubriken zeigen deshalb nur selbst erfasste, datierte Angebote, sonst einen Hinweis.
+- Tests:
+  - Unit-Tests: 54/54
+  - Live-Tests: 7/7
+  - Browser-Tests: 13/13 (neu: Rubriken-Leiste, Einkaufswagen bis zur Liste)
+  - axe: 32/32 Seitenansichten ohne Verstoß
+  - Kopfbereich ohne Überlauf in fünf Breiten (390–1600 px)
+- Rust: kein Vorteil (reine Oberfläche und kleine Rechnungen).
+- Offen: scharfe Rubrikbilder über Kie.ai, sobald du das Auslesen des Schlüssels freigibst.

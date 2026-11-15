@@ -4,8 +4,8 @@ const en: MediaDictionary = {
   world: { food: "Groceries", media: "Multimedia" },
   nav: { hub: "Overview", compare: "Compare", advisor: "Buying advisor", abos: "Subscriptions & streaming", wishlist: "Wishlist" },
   hub: {
-    title: "Multimedia",
-    intro: "Electronics, gaming, software and subscriptions – with your own product data, documented store prices, price history and alerts.",
+    title: "All products",
+    intro: "Products from every department except groceries – with data sheet, dated store prices, history, comparison and alerts.",
     categories: "Categories",
     myProducts: "My products",
     noProducts: "No products yet. Create one in a category – with model number and manufacturer data.",

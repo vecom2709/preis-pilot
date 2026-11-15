@@ -81,33 +81,38 @@ await test("Startseite: Suche führt zum Preisvergleich, Kategorien und Planer v
 // ---------- Preis-Pilot 2.0 ----------
 const v1Data = { version: 1, settings: { country: "DE", theme: "light", minSavingsCents: 150, basketGroupBy: "chain" }, lists: [{ id: "a", name: "Altliste", kind: "shopping", createdAt: "2026-11-01T00:00:00Z", updatedAt: "2026-11-01T00:00:00Z", items: [] }], budgets: [], purchases: [], alerts: [], favorites: [], scans: [] };
 const addTv = async (page, model, inches, hz) => {
-  await page.goto(`${BASE}/de/media/c/tv-heimkino`, { waitUntil: "networkidle0" });
+  await page.goto(`${BASE}/de/produkte/c/tv-heimkino`, { waitUntil: "networkidle0" });
   await clickText(page, "Produkt anlegen");
   await page.type("#pf-brand", "Testmarke"); await page.type("#pf-name", `Test-TV ${inches}`); await page.type("#pf-model", model);
   await page.type("#pf-screenInches", String(inches)); await page.type("#pf-refreshHz", String(hz));
   await clickText(page, "Speichern"); await sleep(600);
 };
 
-await test("2.0: Weltwechsel, dunkles Multimedia-Design, alte 1.0-Daten bleiben erhalten", async (page) => {
+await test("2.0: Rubriken-Leiste wechselt zwischen allen Rubriken, alte 1.0-Daten bleiben erhalten", async (page) => {
   await page.goto(`${BASE}/de`);
   await page.evaluate((d) => localStorage.setItem("preispilot:v1", JSON.stringify(d)), v1Data);
   await page.goto(`${BASE}/de`, { waitUntil: "networkidle0" });
-  const [link] = await page.$$(`xpath/.//header//a[contains(., 'Multimedia')]`);
-  assert.ok(link, "Weltwechsler fehlt"); await link.click();
-  await page.waitForFunction(() => location.pathname === "/de/media", { timeout: 10000 });
-  const paper = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--paper").trim());
-  assert.equal(paper, "#0f1d27");
+  const links = await page.$$eval("header nav[aria-label='Rubriken'] a", (as) => as.map((a) => a.textContent.trim()));
+  assert.equal(links.length, 9, `9 Rubriken erwartet, gefunden: ${links.join(", ")}`);
+  const [mm] = await page.$$(`xpath/.//header//nav[@aria-label='Rubriken']//a[contains(., 'Multimedia & Entertainment')]`);
+  await mm.evaluate((e) => e.scrollIntoView({ inline: "center" })); await mm.click();
+  await page.waitForFunction(() => location.pathname === "/de/r/multimedia-entertainment", { timeout: 10000 });
+  assert.match(await page.$eval("main", (m) => m.innerText), /Aktuelle Preisvergleiche – Top Angebote/);
+  const [garten] = await page.$$(`xpath/.//header//nav[@aria-label='Rubriken']//a[contains(., 'Garten & Heimwerken')]`);
+  await garten.evaluate((e) => e.scrollIntoView({ inline: "center" })); await garten.click();
+  await page.waitForFunction(() => location.pathname === "/de/r/garten-heimwerken", { timeout: 10000 });
+  assert.equal(await page.$eval("header nav[aria-label='Rubriken'] a[aria-current='page']", (a) => a.textContent.trim()), "Garten & Heimwerken");
   await page.goto(`${BASE}/de/lists`, { waitUntil: "networkidle0" });
   assert.match(await page.$eval("main", (m) => m.innerText), /Altliste/);
 });
 
 await test("2.0: Produkt anlegen, gleiche Variante abgewiesen, andere Größe erlaubt", async (page) => {
   await addTv(page, "TT-65X1", 65, 120);
-  assert.match(page.url(), /\/de\/media\/product\?id=/);
+  assert.match(page.url(), /\/de\/produkte\/product\?id=/);
   await addTv(page, "tt 65 x1", 65, 120);
   assert.match(await page.$eval("main", (m) => m.innerText), /Diese Variante gibt es schon/);
   await addTv(page, "TT-55X1", 55, 100);
-  assert.match(page.url(), /\/de\/media\/product\?id=/);
+  assert.match(page.url(), /\/de\/produkte\/product\?id=/);
 });
 
 await test("2.0: Angebote – Gesamtpreis mit Versand, unbekannter Versand hinten, SparGuard, Bestpreis", async (page) => {
@@ -124,7 +129,7 @@ await test("2.0: Angebote – Gesamtpreis mit Versand, unbekannter Versand hinte
 });
 
 await test("2.0: Technischer Vergleich mit Punktwert und Datenblatt-Abdeckung", async (page) => {
-  await page.goto(`${BASE}/de/media/compare?cat=tv-heimkino`, { waitUntil: "networkidle0" });
+  await page.goto(`${BASE}/de/produkte/compare?cat=tv-heimkino`, { waitUntil: "networkidle0" });
   const boxes = await page.$$("main input[type=checkbox]");
   assert.ok(boxes.length >= 2, "zu wenige Produkte"); await boxes[0].click(); await boxes[1].click(); await sleep(300);
   const text = await page.$eval("main", (m) => m.innerText);
@@ -132,7 +137,7 @@ await test("2.0: Technischer Vergleich mit Punktwert und Datenblatt-Abdeckung", 
 });
 
 await test("2.0: Abo-Center – unbekannte Frist benannt, Doppel-Abo im Sparcheck", async (page) => {
-  await page.goto(`${BASE}/de/media/abos`, { waitUntil: "networkidle0" });
+  await page.goto(`${BASE}/de/produkte/abos`, { waitUntil: "networkidle0" });
   for (const name of ["Video Eins", "Video Zwei"]) {
     await clickText(page, "Abo hinzufügen");
     await page.type("#ab-name", name); await page.type("#ab-price", "12,99");
@@ -150,6 +155,28 @@ await test("2.0: Familienbudget rechnet Abos und Einkäufe nach Bereich", async 
   await clickText(page, "Plan speichern"); await sleep(400);
   const text = await page.$eval("main", (m) => m.innerText);
   assert.match(text, /Streaming/); assert.match(text, /25,98\s?€ von 30,00\s?€/); assert.match(text, /670,00\s?€ noch nicht verteilt/);
+});
+
+await test("Einkaufswagen: sammelt aus mehreren Rubriken, Summe nur aus bekannten Preisen, wird zur Einkaufsliste", async (page) => {
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.goto(`${BASE}/de/produkte/c/tv-heimkino`, { waitUntil: "networkidle0" });
+  const [row] = await page.$$(`xpath/.//main//li[.//a[contains(., 'Test-TV 77')]]//button[contains(@aria-label, 'In den Einkaufswagen')]`);
+  assert.ok(row, "Wagen-Knopf in der Produktzeile fehlt"); await row.click(); await row.click(); await sleep(300);
+  await addTv(page, "TT-43K", 43, 60); // Produkt ohne Angebot = ohne Preis
+  await clickText(page, "In den Einkaufswagen"); await sleep(300);
+  const badge = await page.$eval("header button[aria-haspopup='dialog'][aria-label^='Einkaufswagen']", (b) => b.innerText);
+  assert.match(badge, /3/);
+  await (await page.$("header button[aria-label^='Einkaufswagen']")).click(); await sleep(300);
+  const panel = await page.$eval("[role=dialog][aria-label='Einkaufswagen']", (d) => d.innerText);
+  assert.match(panel, /Elektronik & Technik/); assert.match(panel, /Test-TV 77/); assert.match(panel, /1\.977,80\s?€/); assert.match(panel, /1 Artikel ohne Preis/);
+  await clickText(page, "Als Einkaufsliste speichern"); await sleep(400);
+  assert.match(await page.$eval("[role=dialog][aria-label='Einkaufswagen']", (d) => d.innerText), /Gespeichert in „Einkauf vom/);
+  const lists = await page.evaluate(() => JSON.parse(localStorage.getItem("preispilot:v1")).lists);
+  const made = lists.find((l) => l.name.startsWith("Einkauf vom"));
+  assert.ok(made, "Liste aus dem Wagen fehlt");
+  assert.equal(made.items.length, 2);
+  assert.deepEqual(made.items.map((i) => [i.quantity, i.priceCents]), [[2, 98890], [1, null]]);
+  assert.equal(await page.$eval("header button[aria-label^='Einkaufswagen']", (b) => b.innerText.trim()), "0");
 });
 
 await browser.close();

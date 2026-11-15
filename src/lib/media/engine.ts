@@ -199,6 +199,9 @@ const ENUM_RANK: Record<string, string[]> = {
   resolution: ["HD", "Full HD", "4K", "8K"],
   // Rangfolge aufsteigend: höherer Index = besser (A ist die beste Energieklasse)
   energyClassSdr: ["G", "F", "E", "D", "C", "B", "A"],
+  energyClass: ["G", "F", "E", "D", "C", "B", "A"],
+  fuelClass: ["E", "D", "C", "B", "A"],
+  wetClass: ["E", "D", "C", "B", "A"],
 };
 
 function numeric(def: SpecDef, v: unknown): number | null {

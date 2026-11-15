@@ -1,4 +1,5 @@
 "use client";
+import { AddToCart } from "@/components/cart/Cart";
 import Image from "next/image";
 import Link from "next/link";
 import { useCountry, useI18n } from "@/i18n/client";
@@ -57,8 +58,14 @@ export function ComparisonsList({ limit, showNote = true }: { limit: number; sho
                   </li>
                 ))}
               </ul>
-              <span className={`col-span-2 justify-self-start rounded-md px-2.5 py-1 text-[1.2rem] font-extrabold leading-none text-white md:col-span-1 md:justify-self-end ${c.spreadPercent > 0 ? "bg-saving" : "bg-[#4b5d68]"}`}>
-                {c.spreadPercent > 0 ? `-${c.spreadPercent} %` : "±0 %"}
+              <span className="col-span-2 flex items-center gap-2 justify-self-start md:col-span-1 md:justify-self-end">
+                <span className={`rounded-md px-2.5 py-1 text-[1.2rem] font-extrabold leading-none text-white ${c.spreadPercent > 0 ? "bg-saving" : "bg-[#4b5d68]"}`}>
+                  {c.spreadPercent > 0 ? `-${c.spreadPercent} %` : "±0 %"}
+                </span>
+                <AddToCart compact item={{
+                  kind: "food", ref: c.code, name: c.name, detail: c.quantityText, rubric: "lebensmittel", image: c.imageUrl,
+                  priceCents: c.offers[0]?.priceCents ?? null, priceSource: c.offers[0] ? "open_prices" : null, priceStore: c.offers[0]?.chain ?? null, priceDate: c.offers[0]?.date ?? null,
+                }} />
               </span>
             </li>
           ))}

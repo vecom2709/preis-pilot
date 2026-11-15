@@ -278,3 +278,30 @@ describe("Autopilot erstellt keine Käufe (Test 16)", () => {
     for (const a of external) expect(a).toMatch(/noopener/);
   });
 });
+
+// ---------- Einkaufswagen ----------
+import { addToCart, cartToListItems, cartTotals, setCartQuantity } from "@/lib/cart";
+import { rubrics, rubricOf } from "@/lib/rubrics";
+import { mediaCategories } from "@/lib/media/specs";
+import { categories } from "@/lib/categories";
+
+describe("Einkaufswagen", () => {
+  const base = { detail: null, rubric: null, image: null, priceSource: null, priceStore: null, priceDate: null } as const;
+  it("führt gleiche Artikel zusammen, rechnet nur bekannte Preise und übernimmt Quelle in die Liste", () => {
+    let cart = addToCart([], { ...base, kind: "food", ref: "4008400401621", name: "Milch", priceCents: 129, priceSource: "open_prices", priceStore: "Lidl", priceDate: "2026-11-10" }, "a", "t");
+    cart = addToCart(cart, { ...base, kind: "food", ref: "4008400401621", name: "Milch", priceCents: 129, priceSource: "open_prices", priceStore: "Lidl", priceDate: "2026-11-10" }, "b", "t");
+    cart = addToCart(cart, { ...base, kind: "product", ref: "p1", name: "TV", priceCents: null }, "c", "t");
+    expect(cart).toHaveLength(2);
+    expect(cart[0].quantity).toBe(2);
+    expect(cartTotals(cart)).toEqual({ count: 3, knownCents: 258, missing: 1 });
+    const items = cartToListItems(cart, () => "x", () => "Rubrik");
+    expect(items[0]).toMatchObject({ productCode: "4008400401621", priceSource: "open_prices", priceStore: "Lidl", quantity: 2 });
+    expect(items[1]).toMatchObject({ productCode: null, priceCents: null });
+    expect(setCartQuantity(cart, "a", 0)).toHaveLength(1);
+  });
+  it("Rubriken decken alle Kategorien ab, jede Kategorie gehört zu genau einer Rubrik", () => {
+    expect(rubrics).toHaveLength(9);
+    for (const c of mediaCategories) expect(rubrics.filter((r) => r.products.includes(c.slug)), c.slug).toHaveLength(1);
+    for (const c of categories) expect(rubricOf(c.slug, "food"), c.slug).toBeDefined();
+  });
+});

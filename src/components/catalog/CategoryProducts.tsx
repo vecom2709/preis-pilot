@@ -1,4 +1,6 @@
 "use client";
+import { AddToCart } from "@/components/cart/Cart";
+import { rubricOf } from "@/lib/rubrics";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,8 +26,12 @@ export function CategoryProducts({ slug }: { slug: string }) {
       {total > 0 && <p className="mb-3 text-sm text-ink-soft">{fmt(t.categoriesPage.products, { n: new Intl.NumberFormat(intl).format(total) })}</p>}
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((h) => (
-          <li key={h.code}>
-            <Link href={`/${locale}/product/${h.code}`} className="panel flex gap-3 p-3 transition-colors hover:border-pine">
+          <li key={h.code} className="relative">
+            <AddToCart compact className="absolute bottom-3 right-3 z-10" item={{
+              kind: "food", ref: h.code, name: h.name, detail: [h.brand, h.quantityText].filter(Boolean).join(", ") || null,
+              rubric: rubricOf(slug, "food")?.slug ?? null, image: h.imageUrl, priceCents: null, priceSource: null, priceStore: null, priceDate: null,
+            }} />
+            <Link href={`/${locale}/product/${h.code}`} className="panel flex gap-3 p-3 pr-16 transition-colors hover:border-pine">
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-mist">
                 {h.imageUrl && <Image src={h.imageUrl} alt="" fill sizes="80px" className="object-contain p-1" />}
               </div>

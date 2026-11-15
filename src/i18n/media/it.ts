@@ -4,8 +4,8 @@ const it: MediaDictionary = {
   world: { food: "Alimentari", media: "Multimedia" },
   nav: { hub: "Panoramica", compare: "Confronto", advisor: "Consulente", abos: "Abbonamenti e streaming", wishlist: "Lista desideri" },
   hub: {
-    title: "Multimedia",
-    intro: "Elettronica, gaming, software e abbonamenti – con i tuoi dati di prodotto, prezzi documentati dei negozi, storico e avvisi di prezzo.",
+    title: "Tutti i prodotti",
+    intro: "Prodotti di tutti i reparti tranne gli alimentari – con scheda tecnica, prezzi datati dei negozi, storico, confronto e avvisi.",
     categories: "Categorie",
     myProducts: "I miei prodotti",
     noProducts: "Ancora nessun prodotto. Crea un prodotto in una categoria – con codice modello e dati del produttore.",

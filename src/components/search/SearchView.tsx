@@ -1,4 +1,6 @@
 "use client";
+import { AddToCart } from "@/components/cart/Cart";
+import { ProductMatches } from "./ProductMatches";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -38,6 +40,7 @@ export function SearchView() {
         {fmt(t.search.countryFilter, { country: t.common.countries[country] })}
       </label>
       {/* Neuer Schlüssel = neue Suche: Seitenzählung und Treffer beginnen von vorn */}
+      <ProductMatches q={q} />
       <SearchResults key={`${q}|${onlyCountry}|${country}`} q={q} onlyCountry={onlyCountry} country={country} />
     </div>
   );
@@ -93,8 +96,12 @@ function SearchResults({ q, onlyCountry, country }: { q: string; onlyCountry: bo
       {hits.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2">
           {hits.map((h) => (
-            <li key={h.code}>
-              <Link href={`/${locale}/product/${h.code}`} className="panel flex gap-3 p-3 transition-colors hover:border-pine">
+            <li key={h.code} className="relative">
+              <AddToCart compact className="absolute bottom-3 right-3 z-10" item={{
+                kind: "food", ref: h.code, name: h.name ?? h.code, detail: [h.brand, h.quantityText].filter(Boolean).join(", ") || null,
+                rubric: null, image: h.imageUrl ?? null, priceCents: null, priceSource: null, priceStore: null, priceDate: null,
+              }} />
+              <Link href={`/${locale}/product/${h.code}`} className="panel flex gap-3 p-3 pr-16 transition-colors hover:border-pine">
                 <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-mist">
                   {h.imageUrl && <Image src={h.imageUrl} alt="" fill sizes="80px" className="object-contain p-1" />}
                 </div>

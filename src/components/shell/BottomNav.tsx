@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/i18n/client";
-import { IconCompare, IconCompass, IconHome, IconList, IconPlay, IconScan, IconScreen, IconSearch, IconWallet } from "@/components/ui/icons";
-import { isActive, isMediaActive, isMediaWorld, mediaRoutes, routes, type NavKey } from "./nav";
+import { IconHome, IconList, IconScan, IconSearch, IconWallet } from "@/components/ui/icons";
+import { isActive, routes, type NavKey } from "./nav";
 
 // Mobile Navigation: die häufigsten Aufgaben mit dem Daumen erreichbar, Scannen in der Mitte.
 export function BottomNav() {
@@ -20,16 +20,7 @@ export function BottomNavView({ pathname }: { pathname: string }) {
     { key: "lists", label: t.nav.lists, Icon: IconList },
     { key: "budget", label: t.nav.budget, Icon: IconWallet },
   ];
-  const media = isMediaWorld(pathname, locale);
-  const items = media
-    ? [
-        { key: "hub", href: `/${locale}${mediaRoutes.hub}`, label: t.mediaNav.hub, Icon: IconScreen, active: isMediaActive(pathname, locale, "hub"), main: false },
-        { key: "compare", href: `/${locale}${mediaRoutes.compare}`, label: t.mediaNav.compare, Icon: IconCompare, active: isMediaActive(pathname, locale, "compare"), main: false },
-        { key: "advisor", href: `/${locale}${mediaRoutes.advisor}`, label: t.mediaNav.advisor, Icon: IconCompass, active: isMediaActive(pathname, locale, "advisor"), main: true },
-        { key: "abos", href: `/${locale}${mediaRoutes.abos}`, label: t.mediaNav.abosShort, Icon: IconPlay, active: isMediaActive(pathname, locale, "abos"), main: false },
-        { key: "budget", href: `/${locale}${routes.budget}`, label: t.nav.budget, Icon: IconWallet, active: isActive(pathname, locale, "budget"), main: false },
-      ]
-    : food.map((f) => ({ ...f, href: `/${locale}${routes[f.key]}`, active: isActive(pathname, locale, f.key), main: f.key === "scan" }));
+  const items = food.map((f) => ({ ...f, href: `/${locale}${routes[f.key]}`, active: isActive(pathname, locale, f.key), main: f.key === "scan" }));
   return (
     <nav
       aria-label={t.nav.main}

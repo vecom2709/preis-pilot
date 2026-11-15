@@ -18,6 +18,25 @@ export const ListItemSchema = z.object({
   checked: z.boolean().default(false),
 });
 
+/** Einkaufswagen: sammelt Artikel aus allen Rubriken, bevor daraus eine Einkaufsliste wird. Es wird nichts gekauft. */
+export const CartItemSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["food", "product"]),
+  /** Barcode (Lebensmittel) oder ID des erfassten Produkts */
+  ref: z.string().min(1).max(80),
+  name: z.string().min(1).max(120),
+  detail: z.string().max(120).nullable().default(null),
+  rubric: z.string().max(40).nullable().default(null),
+  image: z.string().max(500).nullable().default(null),
+  quantity: z.number().positive().max(999),
+  priceCents: z.number().int().nonnegative().nullable(),
+  priceSource: z.enum(["manual", "open_prices"]).nullable(),
+  priceStore: z.string().max(80).nullable(),
+  priceDate: z.string().nullable(),
+  addedAt: z.string(),
+});
+export type CartItem = z.infer<typeof CartItemSchema>;
+
 export const ShoppingListSchema = z.object({
   id: z.string(),
   name: z.string().min(1).max(60),
@@ -159,6 +178,7 @@ export const AppDataSchema = z.object({
   subscriptions: z.array(SubscriptionSchema).default([]),
   savingsGoals: z.array(SavingsGoalSchema).default([]),
   householdPlan: HouseholdPlanSchema.nullable().default(null),
+  cart: z.array(CartItemSchema).max(300).default([]),
 });
 
 export type ListItem = z.infer<typeof ListItemSchema>;
@@ -182,5 +202,6 @@ export function emptyData(): AppData {
     subscriptions: [],
     savingsGoals: [],
     householdPlan: null,
+    cart: [],
   };
 }

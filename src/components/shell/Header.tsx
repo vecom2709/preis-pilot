@@ -4,65 +4,59 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import {
-  IconCalendar, IconCart, IconChart, IconClose, IconCompare, IconCompass, IconHome, IconList, IconMenu, IconPlay, IconRadar,
-  IconScale, IconScreen, IconSearch, IconTag, IconUser,
+  IconCalendar, IconChart, IconClose, IconCompare, IconCompass, IconHome, IconList, IconMenu, IconPlay, IconRadar,
+  IconScale, IconSearch, IconTag, IconUser,
 } from "@/components/ui/icons";
+import { findRubric, rubricOf, rubrics } from "@/lib/rubrics";
 import { Logo } from "./Logo";
-import {
-  headerNav, isActive, isMediaActive, isMediaWorld, mainNav, mediaNav, mediaRoutes, navLabel, routes, type MediaNavKey, type NavKey,
-} from "./nav";
 import { SettingsPanel } from "./SettingsPanel";
+import { CartButton } from "@/components/cart/Cart";
+import { headerNav, isActive, mainNav, navLabel, routes, type NavKey } from "./nav";
+import { rubricIcons } from "./rubric-icons";
 
 const navIcons: Partial<Record<NavKey, typeof IconHome>> = {
   home: IconHome, search: IconScale, offers: IconTag, lists: IconList, budget: IconCalendar, insights: IconChart, radar: IconRadar,
 };
-const mediaIcons: Record<MediaNavKey, typeof IconHome> = { hub: IconScreen, compare: IconCompare, advisor: IconCompass, abos: IconPlay };
 
-interface NavEntry { id: string; href: string; label: string; active: boolean; Icon: typeof IconHome }
-
-/** Navigation passend zur gewählten Welt (Lebensmittel oder Multimedia) */
-function useEntries(pathname: string): { media: boolean; entries: NavEntry[]; all: NavEntry[] } {
-  const { locale, t } = useI18n();
-  const media = isMediaWorld(pathname, locale);
-  const food = (keys: NavKey[]) =>
-    keys.map((key) => ({ id: key, href: `/${locale}${routes[key]}`, label: navLabel(key, t), active: isActive(pathname, locale, key), Icon: navIcons[key] ?? IconUser }));
-  const mediaEntries = mediaNav.map((key) => ({
-    id: key, href: `/${locale}${mediaRoutes[key]}`, label: t.mediaNav[key], active: isMediaActive(pathname, locale, key), Icon: mediaIcons[key],
-  }));
-  if (media) {
-    const extra = food(["budget", "radar"]);
-    return { media, entries: [...mediaEntries, ...extra], all: [...mediaEntries, ...extra, ...food(["account"])] };
-  }
-  return { media, entries: food(headerNav), all: food(mainNav) };
+/** Aktive Rubrik aus dem Pfad: Rubrikseite, Lebensmittel-Kategorie oder Produkt-Kategorie */
+function activeRubric(pathname: string, locale: string): string | null {
+  const rest = pathname.slice(locale.length + 1);
+  const m = rest.match(/^\/(r|category|produkte\/c)\/([^/?#]+)/);
+  if (!m) return null;
+  if (m[1] === "r") return findRubric(m[2])?.slug ?? null;
+  return rubricOf(m[2], m[1] === "category" ? "food" : "products")?.slug ?? null;
 }
 
-/** Umschalter zwischen den beiden Welten – auf allen Bildschirmgrößen sichtbar */
-function WorldSwitch({ media }: { media: boolean }) {
+/** Rubriken-Leiste: wechselt zwischen allen neun Rubriken, rechts der Einkaufswagen */
+function RubricBar({ pathname }: { pathname: string }) {
   const { locale, t } = useI18n();
-  const items = [
-    { href: `/${locale}`, label: t.world.food, Icon: IconCart, active: !media },
-    { href: `/${locale}/media`, label: t.world.media, Icon: IconScreen, active: media },
-  ];
+  const active = activeRubric(pathname, locale);
   return (
-    <nav aria-label={t.world.label} className="border-t border-white/10 bg-black/20">
-      <ul className="mx-auto flex h-10 max-w-[1560px] items-stretch gap-1 px-4 sm:px-6 lg:px-10">
-        {items.map(({ href, label, Icon, active }) => (
-          <li key={href}>
-            <Link
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={`relative flex h-10 items-center gap-2 px-3 text-sm font-semibold transition-colors ${
-                active ? "text-white" : "text-white/70 hover:text-white"
-              }`}
-            >
-              <Icon width={17} height={17} />
-              {label}
-              {active && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-aqua" />}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className="border-t border-white/10 bg-black/20">
+      <div className="mx-auto flex h-12 max-w-[1560px] items-center pl-1 sm:pl-3 lg:pl-7 lg:pr-7">
+        <nav aria-label={t.rubrics.nav} className="min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] max-2xl:[mask-image:linear-gradient(to_right,black_88%,transparent)] [&::-webkit-scrollbar]:hidden">
+          <ul className="flex h-12 min-w-max items-stretch 2xl:w-full 2xl:justify-between">
+            {rubrics.map((r) => {
+              const Icon = rubricIcons[r.slug];
+              const on = r.slug === active;
+              return (
+                <li key={r.slug}>
+                  <Link
+                    href={`/${locale}/r/${r.slug}`}
+                    aria-current={on ? "page" : undefined}
+                    className={`relative flex h-12 items-center gap-1.5 whitespace-nowrap px-2.5 text-[0.9rem] font-semibold transition-colors ${on ? "text-aqua" : "text-white/80 hover:text-white"}`}
+                  >
+                    <Icon width={17} height={17} />
+                    {r.label[locale]}
+                    {on && <span aria-hidden="true" className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-aqua" />}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </div>
+    </div>
   );
 }
 
@@ -73,7 +67,13 @@ export function Header() {
 /** Ohne aktiven Pfad nutzbar – dient als statischer Platzhalter beim Vorab-Rendern */
 export function HeaderView({ pathname }: { pathname: string }) {
   const { locale, t } = useI18n();
-  const { media, entries, all } = useEntries(pathname);
+  const entries = headerNav.map((key) => ({ id: key, href: `/${locale}${routes[key]}`, label: navLabel(key, t), active: isActive(pathname, locale, key), Icon: navIcons[key] ?? IconUser }));
+  const all = mainNav.map((key) => ({ id: key, href: `/${locale}${routes[key]}`, label: navLabel(key, t), active: isActive(pathname, locale, key) }));
+  const tools = [
+    { id: "compare", href: `/${locale}/produkte/compare`, label: t.mediaNav.compare, Icon: IconCompare },
+    { id: "advisor", href: `/${locale}/produkte/advisor`, label: t.mediaNav.advisor, Icon: IconCompass },
+    { id: "abos", href: `/${locale}/produkte/abos`, label: t.mediaNav.abos, Icon: IconPlay },
+  ];
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -99,7 +99,7 @@ export function HeaderView({ pathname }: { pathname: string }) {
                   <Link
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className={`relative flex h-[74px] items-center gap-2 whitespace-nowrap px-3 text-[0.98rem] font-semibold transition-colors ${
+                    className={`relative flex h-[74px] items-center gap-2 whitespace-nowrap px-2.5 text-[0.98rem] font-semibold 2xl:px-3 transition-colors ${
                       active ? "text-aqua" : "text-white/90 hover:text-white"
                     }`}
                   >
@@ -115,11 +115,12 @@ export function HeaderView({ pathname }: { pathname: string }) {
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <Link
             href={`/${locale}/account`}
-            className="hidden items-center gap-2.5 whitespace-nowrap rounded-full border border-white/50 px-5 py-2.5 text-[1rem] font-semibold text-white transition-colors hover:border-aqua hover:text-aqua sm:inline-flex"
+            className="hidden items-center gap-2.5 whitespace-nowrap rounded-full border border-white/50 px-5 py-2.5 xl:max-2xl:px-3 text-[1rem] font-semibold text-white transition-colors hover:border-aqua hover:text-aqua sm:inline-flex"
           >
             <IconUser width={21} height={21} />
-            {t.nav.account}
+            <span className="xl:max-2xl:sr-only">{t.nav.account}</span>
           </Link>
+          <CartButton />
           <Link href={`/${locale}/search`} aria-label={t.nav.searchLabel} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10">
             <IconSearch width={24} height={24} />
           </Link>
@@ -135,7 +136,7 @@ export function HeaderView({ pathname }: { pathname: string }) {
           </button>
         </div>
       </div>
-      <WorldSwitch media={media} />
+      <RubricBar pathname={pathname} />
 
       <dialog
         ref={dialogRef}
@@ -167,6 +168,26 @@ export function HeaderView({ pathname }: { pathname: string }) {
                   </li>
                 );
               })}
+            </ul>
+            <h2 className="mt-5 px-3 text-sm font-semibold text-ink-soft">{t.rubrics.nav}</h2>
+            <ul className="mt-1 grid grid-cols-1 gap-0.5">
+              {rubrics.map((r) => {
+                const Icon = rubricIcons[r.slug];
+                return (
+                  <li key={r.slug}>
+                    <Link href={`/${locale}/r/${r.slug}`} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-mist">
+                      <Icon width={20} height={20} className="text-pine" />{r.label[locale]}
+                    </Link>
+                  </li>
+                );
+              })}
+              {tools.map(({ id, href, label, Icon }) => (
+                <li key={id}>
+                  <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-mist">
+                    <Icon width={20} height={20} className="text-pine" />{label}
+                  </Link>
+                </li>
+              ))}
             </ul>
             <div className="mt-6 border-t border-line px-3 pt-5">
               <SettingsPanel />

@@ -12,15 +12,15 @@ export function generateStaticParams() {
   return mediaCategories.map((c) => ({ slug: c.slug }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/[lang]/media/c/[slug]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[lang]/produkte/c/[slug]">): Promise<Metadata> {
   const { lang, slug } = await params;
   const cat = findMediaCategory(slug);
   if (!isLocale(lang) || !cat) return {};
   const t = getMediaDictionary(lang);
-  return pageMetadata(lang, `/media/c/${slug}`, cat.label[lang], `${cat.sub.map((s) => s[lang]).join(", ")} – ${t.hub.intro}`);
+  return pageMetadata(lang, `/produkte/c/${slug}`, cat.label[lang], `${cat.sub.map((s) => s[lang]).join(", ")} – ${t.hub.intro}`);
 }
 
-export default async function MediaCategoryPage({ params }: PageProps<"/[lang]/media/c/[slug]">) {
+export default async function MediaCategoryPage({ params }: PageProps<"/[lang]/produkte/c/[slug]">) {
   const { lang, slug } = await params;
   const cat = findMediaCategory(slug);
   if (!isLocale(lang) || !cat) notFound();

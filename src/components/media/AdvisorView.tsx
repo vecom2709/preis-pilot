@@ -92,7 +92,7 @@ export function AdvisorView() {
                 <li key={p.product.id} className={`panel p-4 ${i === 0 ? "border-pine" : ""}`}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <Link href={`/${locale}/media/product?id=${encodeURIComponent(p.product.id)}`} className="font-bold underline-offset-4 hover:underline">
+                      <Link href={`/${locale}/produkte/product?id=${encodeURIComponent(p.product.id)}`} className="font-bold underline-offset-4 hover:underline">
                         {i + 1}. {productTitle(p.product)}
                       </Link>
                       <p className="num text-sm text-ink-soft">{p.product.model}</p>

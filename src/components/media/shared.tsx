@@ -7,16 +7,13 @@ import { fmt } from "@/i18n";
 import { formatCents } from "@/lib/money";
 import { bestOffers, type Condition, type MediaProduct, type Offer, type RankedOffer } from "@/lib/media/engine";
 import { specSchemas, type SpecDef } from "@/lib/media/specs";
-import { IconCamera, IconDisc, IconGamepad, IconLaptop, IconPhone, IconScreen } from "@/components/ui/icons";
+import { IconScreen } from "@/components/ui/icons";
+import { categoryIcons } from "./shared-icons";
+import { AddToCart } from "@/components/cart/Cart";
+import { rubricOf } from "@/lib/rubrics";
 
-export const categoryIcons: Record<string, typeof IconScreen> = {
-  "tv-heimkino": IconScreen,
-  "smartphones-tablets": IconPhone,
-  "computer-hardware": IconLaptop,
-  gaming: IconGamepad,
-  "foto-video-audio": IconCamera,
-  software: IconDisc,
-};
+export { categoryIcons };
+
 
 export function useMedia() {
   const { locale, intl, t: tm } = useI18n();
@@ -61,8 +58,8 @@ export function ProductRow({ product, offers }: { product: MediaProduct; offers:
   return (
     <li>
       <Link
-        href={`/${locale}/media/product?id=${encodeURIComponent(product.id)}`}
-        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-mist-strong"
+        href={`/${locale}/produkte/product?id=${encodeURIComponent(product.id)}`}
+        className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 transition-colors hover:bg-mist-strong"
       >
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line text-pine">
           <Icon width={20} height={20} />
@@ -82,6 +79,10 @@ export function ProductRow({ product, offers }: { product: MediaProduct; offers:
           )}
         </span>
       </Link>
+      <AddToCart compact item={{
+        kind: "product", ref: product.id, name: productTitle(product), detail: product.model || null, rubric: rubricOf(product.category, "products")?.slug ?? null, image: null,
+        priceCents: best?.totalCents ?? null, priceSource: best ? "manual" : null, priceStore: best?.merchant ?? null, priceDate: best?.observedAt ?? null,
+      }} />
     </li>
   );
 }

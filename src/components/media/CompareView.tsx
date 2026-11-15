@@ -88,7 +88,7 @@ export function CompareView() {
           ) : (
             <p className="text-ink-soft">
               {t.hub.noProducts}{" "}
-              <Link className="text-pine underline underline-offset-4" href={`/${locale}/media/c/${category}`}>{t.product.add}</Link>
+              <Link className="text-pine underline underline-offset-4" href={`/${locale}/produkte/c/${category}`}>{t.product.add}</Link>
             </p>
           )}
         </fieldset>
@@ -113,7 +113,7 @@ export function CompareView() {
                   <th scope="col" className="w-48 p-3 text-left text-sm font-semibold text-ink-soft"><span className="sr-only">{t.product.specs}</span></th>
                   {selected.map((p) => (
                     <th key={p.id} scope="col" className="p-3 text-left align-bottom">
-                      <Link href={`/${locale}/media/product?id=${encodeURIComponent(p.id)}`} className="font-bold underline-offset-4 hover:underline">{productTitle(p)}</Link>
+                      <Link href={`/${locale}/produkte/product?id=${encodeURIComponent(p.id)}`} className="font-bold underline-offset-4 hover:underline">{productTitle(p)}</Link>
                       <span className="num block text-sm font-normal text-ink-soft">{p.model}</span>
                     </th>
                   ))}

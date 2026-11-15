@@ -1,4 +1,5 @@
 "use client";
+import { AddToCart } from "@/components/cart/Cart";
 import { useEffect, useMemo, useState } from "react";
 import { useCountry, useI18n } from "@/i18n/client";
 import { fmt } from "@/i18n";
@@ -192,7 +193,11 @@ function ProductActions({ product, cheapest }: { product: ProductSummary; cheape
   return (
     <section aria-label={t.product.addToList} className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button className="btn btn-primary" aria-expanded={panel === "list"} onClick={() => { setPanel(panel === "list" ? null : "list"); setMessage(null); }}>
+        <AddToCart item={{
+          kind: "food", ref: product.code, name, detail: [product.brand, product.quantityText].filter(Boolean).join(", ") || null, rubric: null, image: null,
+          priceCents: cheapest?.priceCents ?? null, priceSource: cheapest ? "open_prices" : null, priceStore: cheapest?.store.name ?? null, priceDate: cheapest?.date ?? null,
+        }} />
+        <button className="btn btn-quiet" aria-expanded={panel === "list"} onClick={() => { setPanel(panel === "list" ? null : "list"); setMessage(null); }}>
           <IconList width={18} height={18} />{t.product.addToList}
         </button>
         <button className="btn btn-quiet" aria-expanded={panel === "alert"} onClick={() => {

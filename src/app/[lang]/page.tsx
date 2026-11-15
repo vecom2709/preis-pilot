@@ -6,28 +6,24 @@ import { isLocale } from "@/i18n/config";
 import { categories } from "@/lib/categories";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { ComparisonsList } from "@/components/home/ComparisonsWidget";
-import {
-  IconCalculator, IconCalendar, IconChart, IconChecklist, IconChevron, IconLeaf, IconPiggy, IconScale, IconScan, IconWallet,
-} from "@/components/ui/icons";
+import { BottomStrip, BrandTitle, FeatureRow } from "@/components/home/Blocks";
+import { mediaTiles } from "@/components/home/MediaTileIcons";
+import { IconBasket, IconChart, IconChecklist, IconChevron, IconPlay } from "@/components/ui/icons";
 
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = getDictionary(lang);
   const L = t.landing;
-  const featureLinks = [`/${lang}/search`, `/${lang}/search`, `/${lang}/budget`, `/${lang}/insights`];
-  const featureIcons = [IconPiggy, IconLeaf, IconCalculator, IconChart];
-  const stripLinks = [`/${lang}/scan`, `/${lang}/search`, `/${lang}/lists`, `/${lang}/budget`, `/${lang}/insights`, `/${lang}/search`];
-  const stripIcons = [IconScan, IconScale, IconCalendar, IconWallet, IconChart, IconLeaf];
   const featured = categories.filter((c) => c.featured);
 
   return (
     <div className="full-bleed -mb-28 -mt-6 lg:-mt-10 xl:-mb-16">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-r from-[#eef5f6] via-[#f2f8f8] to-[#e6f1f2] dark:from-mist dark:via-mist dark:to-mist-strong">
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[932/312] h-full max-w-[74%] md:block">
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[945/279] h-full max-w-[54%] md:block">
           <Image
-            src="/images/hero.webp"
+            src="/images/hero-home.webp"
             alt=""
             fill
             priority
@@ -36,69 +32,65 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
           />
         </div>
         <div className="relative mx-auto max-w-[1560px] px-4 pb-9 pt-7 sm:px-6 md:min-h-[380px] md:pb-10 md:pt-8 lg:px-10">
-          <p className="text-[0.78rem] font-bold uppercase tracking-[0.32em] text-ink">{L.eyebrow.join("  ·  ")}</p>
+          <p className="max-w-[42rem] text-[0.74rem] font-bold uppercase tracking-[0.2em] text-ink sm:text-[0.78rem] sm:tracking-[0.3em]">{[...L.eyebrow, L.homeEyebrow].join("  ·  ")}</p>
           <h1 className="mt-3">
-            <span className="relative inline-block text-[3.2rem] font-extrabold leading-[0.95] tracking-[-0.035em] text-ink sm:text-[4.2rem] lg:text-[4.6rem]">
-              Preis-<span className="bg-gradient-to-r from-[#0b8f86] to-[#19b8ad] bg-clip-text text-transparent">Pilot</span>
-              <svg aria-hidden="true" viewBox="0 0 300 24" className="absolute -bottom-3 right-0 h-5 w-[58%]" preserveAspectRatio="none">
-                <path d="M4 18 C 90 6, 200 4, 296 12" fill="none" stroke="url(#pp-swoosh)" strokeWidth="5" strokeLinecap="round" />
-                <defs><linearGradient id="pp-swoosh" x1="0" x2="1"><stop offset="0" stopColor="#0b7d78" stopOpacity="0.3" /><stop offset="1" stopColor="#19b8ad" /></linearGradient></defs>
-              </svg>
-            </span>
-            <span className="mt-5 block max-w-[32rem] text-[1.6rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink sm:text-[1.95rem]">{L.heroTitle}</span>
+            <BrandTitle suffix="Multimedia" />
+            <span className="mt-5 block max-w-[34rem] text-[1.55rem] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink sm:text-[1.9rem]">{L.homeTitle}</span>
           </h1>
-          <p className="mt-2.5 max-w-[31rem] text-[1rem] text-ink-soft sm:text-[1.05rem]">{L.heroText}</p>
-          <div className="mt-5"><HeroSearch /></div>
+          <p className="mt-2.5 max-w-[33rem] text-[1rem] text-ink-soft sm:text-[1.05rem]">{L.homeText}</p>
+          <div className="mt-5"><HeroSearch home /></div>
         </div>
         <div className="relative aspect-[16/7] w-full md:hidden">
-          <Image src="/images/hero.webp" alt="" fill sizes="100vw" className="object-cover" />
+          <Image src="/images/hero-home.webp" alt="" fill sizes="100vw" className="object-cover" />
         </div>
       </section>
 
-      {/* Vorteile */}
-      <section aria-label={L.eyebrow.join(", ")} className="border-y border-line bg-[#f5f9f9] dark:bg-paper">
-        <ul className="mx-auto grid max-w-[1560px] grid-cols-1 gap-y-4 px-4 py-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-10">
-          {L.features.map((f, i) => {
-            const Icon = featureIcons[i];
-            return (
-              <li key={f.title} className={`lg:px-6 ${i > 0 ? "lg:border-l lg:border-line" : "lg:pl-0"}`}>
-                <Link href={featureLinks[i]} className="group flex items-center gap-4">
-                  <Icon width={44} height={44} strokeWidth={1.5} className="shrink-0 text-pine" />
-                  <span>
-                    <span className="block text-[1.1rem] font-bold group-hover:text-pine">{f.title}</span>
-                    <span className="block text-sm text-ink-soft">{f.text}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <FeatureRow lang={lang} t={t} withMedia />
 
       <div className="mx-auto max-w-[1560px] space-y-8 px-4 py-8 sm:px-6 lg:px-10">
-        {/* Kategorien */}
-        <section aria-labelledby="cats-title">
-          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-            <h2 id="cats-title" className="text-[1.6rem] font-extrabold tracking-[-0.015em]">{L.categoriesTitle}</h2>
-            <Link href={`/${lang}/categories`} className="inline-flex items-center gap-1 font-semibold text-pine hover:text-pine-strong">
-              {L.allCategories}<IconChevron width={18} height={18} />
-            </Link>
-          </div>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
-            {featured.map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={`/${lang}/category/${c.slug}`}
-                  className="flex h-[66px] items-center gap-2.5 rounded-xl border border-line bg-paper px-3 shadow-[0_4px_14px_-8px_rgba(11,58,69,0.25)] transition-colors hover:border-pine"
-                >
-                  {c.image && <Image src={c.image} alt="" width={56} height={56} className="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-12" />}
-                  <span className="min-w-0 flex-1 break-words text-[0.9rem] font-bold leading-tight sm:text-[1rem]">{c.label[lang]}</span>
-                  <IconChevron width={20} height={20} className="hidden shrink-0 text-ink sm:block" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Einkaufs- und Multimedia-Kategorien */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
+          <section aria-labelledby="shop-title" className="overflow-hidden rounded-2xl border border-line bg-[#eef5f6] shadow-[0_10px_30px_-18px_rgba(11,58,69,0.45)] dark:bg-paper">
+            <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-petrol to-[#0d5560] px-5 py-3 text-white">
+              <h2 id="shop-title" className="flex items-center gap-3 text-[1.3rem] font-extrabold"><IconBasket width={28} height={28} />{L.shopTitle}</h2>
+              <Link href={`/${lang}/categories`} className="inline-flex items-center gap-1 text-sm font-semibold hover:text-aqua">{L.shopAll}<IconChevron width={16} height={16} /></Link>
+            </div>
+            <ul className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
+              {featured.map((c) => (
+                <li key={c.slug}>
+                  <Link href={`/${lang}/category/${c.slug}`} className="flex h-[62px] items-center gap-2 rounded-xl bg-paper px-2.5 shadow-[0_4px_14px_-8px_rgba(11,58,69,0.3)] ring-1 ring-line transition-colors hover:ring-pine">
+                    {c.image && <Image src={c.image} alt="" width={56} height={56} className="h-9 w-9 shrink-0 object-contain" />}
+                    <span className="min-w-0 flex-1 text-[0.93rem] font-bold leading-tight">{c.label[lang]}</span>
+                    <IconChevron width={18} height={18} className="hidden shrink-0 text-ink sm:block lg:max-2xl:hidden" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="mm-title" className="overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a1d6e] via-[#4b2fb0] to-[#7044df] shadow-[0_10px_30px_-14px_rgba(60,30,140,0.6)]">
+            <div className="flex items-center justify-between gap-3 px-5 py-3 text-white">
+              <h2 id="mm-title" className="flex items-center gap-3 text-[1.3rem] font-extrabold">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/20"><IconPlay width={20} height={20} /></span>{L.mediaTitle}
+              </h2>
+              <Link href={`/${lang}/r/multimedia-entertainment`} className="inline-flex items-center gap-1 text-sm font-semibold hover:text-[#d8ccff]">{L.mediaAll}<IconChevron width={16} height={16} /></Link>
+            </div>
+            <ul className="grid grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2 xl:grid-cols-3">
+              {mediaTiles.map(({ slug, Icon }, i) => (
+                <li key={slug}>
+                  <Link href={`/${lang}/produkte/c/${slug}`} className="flex min-h-[62px] items-center gap-2.5 rounded-xl bg-white px-2.5 py-2 text-[#14123a] shadow-[0_6px_16px_-10px_rgba(20,10,60,0.6)] transition-transform hover:-translate-y-0.5">
+                    <Icon />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[0.95rem] font-bold leading-tight">{L.mediaTiles[i].title}</span>
+                      <span className="block text-[0.78rem] leading-tight text-[#4b4870]">{L.mediaTiles[i].text}</span>
+                    </span>
+                    <IconChevron width={18} height={18} className="shrink-0 text-[#6b5bd6]" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
 
         {/* Planer + Vergleiche */}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]">
@@ -131,25 +123,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         </div>
       </div>
 
-      {/* Leiste unten */}
-      <section aria-label={t.nav.main} className="bg-gradient-to-r from-petrol via-[#0d5560] to-[#0f6f6c] text-white">
-        <ul className="mx-auto grid max-w-[1560px] grid-cols-2 gap-y-5 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-6 lg:px-10">
-          {L.strip.map((s, i) => {
-            const Icon = stripIcons[i];
-            return (
-              <li key={s.title} className={`lg:px-5 ${i > 0 ? "lg:border-l lg:border-white/20" : "lg:pl-0"}`}>
-                <Link href={stripLinks[i]} className="group flex items-center gap-3">
-                  <Icon width={38} height={38} strokeWidth={1.5} className="shrink-0 text-white" />
-                  <span className="min-w-0">
-                    <span className="block font-bold group-hover:text-aqua">{s.title}</span>
-                    <span className="block text-[0.82rem] text-white/80">{s.text}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <BottomStrip lang={lang} t={t} withMedia />
     </div>
   );
 }

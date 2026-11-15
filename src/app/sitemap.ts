@@ -3,10 +3,12 @@ import { locales } from "@/i18n/config";
 import { SITE_URL } from "@/lib/seo";
 import { categories } from "@/lib/categories";
 import { mediaCategories } from "@/lib/media/specs";
+import { rubrics } from "@/lib/rubrics";
 
 // Öffentliche, suchmaschinenrelevante Seiten in allen Sprachen mit hreflang-Varianten
 const paths = ["", "/search", "/offers", "/comparisons", "/categories", ...categories.map((c) => `/category/${c.slug}`), "/scan", "/lists", "/budget", "/sources", "/privacy",
-  "/media", ...mediaCategories.map((c) => `/media/c/${c.slug}`), "/media/compare", "/media/advisor", "/media/abos"];
+  ...rubrics.map((r) => `/r/${r.slug}`),
+  "/produkte", ...mediaCategories.map((c) => `/produkte/c/${c.slug}`), "/produkte/compare", "/produkte/advisor", "/produkte/abos"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return paths.flatMap((path) =>

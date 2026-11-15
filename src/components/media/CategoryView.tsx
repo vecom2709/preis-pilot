@@ -127,7 +127,7 @@ export function ProductForm({ slug, existing }: { slug: string; existing: readon
       setError(res.error);
       return;
     }
-    router.push(`/${locale}/media/product?id=${encodeURIComponent(product.id)}`);
+    router.push(`/${locale}/produkte/product?id=${encodeURIComponent(product.id)}`);
   }
 
   return (
@@ -161,7 +161,7 @@ export function ProductForm({ slug, existing }: { slug: string; existing: readon
       </div>
 
       {dup && (
-        <Notice tone="warn" action={<Link className="btn btn-quiet btn-sm" href={`/${locale}/media/product?id=${encodeURIComponent(dup.id)}`}>{t.product.open}</Link>}>
+        <Notice tone="warn" action={<Link className="btn btn-quiet btn-sm" href={`/${locale}/produkte/product?id=${encodeURIComponent(dup.id)}`}>{t.product.open}</Link>}>
           {fmt(t.product.duplicate, { name: productTitle(dup) })}
         </Notice>
       )}

@@ -19,21 +19,6 @@ export const headerNav: NavKey[] = ["home", "search", "offers", "lists", "budget
 /** Alle Bereiche (Menü auf kleinen Bildschirmen) */
 export const mainNav: NavKey[] = ["home", "search", "offers", "lists", "budget", "radar", "insights", "account"];
 
-/** Multimedia-Welt: eigener Bereich mit dunklerem, technischem Erscheinungsbild */
-export type MediaNavKey = "hub" | "compare" | "advisor" | "abos";
-export const mediaRoutes: Record<MediaNavKey, string> = { hub: "/media", compare: "/media/compare", advisor: "/media/advisor", abos: "/media/abos" };
-export const mediaNav: MediaNavKey[] = ["hub", "compare", "advisor", "abos"];
-
-export function isMediaWorld(pathname: string, locale: string): boolean {
-  return pathname === `/${locale}/media` || pathname.startsWith(`/${locale}/media/`);
-}
-
-export function isMediaActive(pathname: string, locale: string, key: MediaNavKey): boolean {
-  const target = `/${locale}${mediaRoutes[key]}`;
-  if (key === "hub") return pathname === target || pathname.startsWith(`/${locale}/media/c/`) || pathname.startsWith(`/${locale}/media/product`);
-  return pathname === target || pathname.startsWith(`${target}/`);
-}
-
 export function navLabel(key: NavKey, t: Dictionary): string {
   const map: Record<NavKey, string> = {
     home: t.nav.home,

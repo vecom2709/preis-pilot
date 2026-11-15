@@ -45,6 +45,15 @@ Konfiguration über `.env` (Vorlage: `.env.example`). Für den reinen Betrieb vo
 | SEO | fertig | Metadaten je Seite, kanonische Adressen, hreflang, Sitemap, robots.txt, strukturierte Daten (Product + belegte Preisspanne) |
 | Datenmodell PostgreSQL (alle 17 Modelle + Haushaltsmitglieder) | fertig, noch nicht angebunden | `src/db/schema.ts`, Migration `drizzle/0000_init.sql` |
 
+## Neu: Rubriken-Design und Einkaufswagen (nach Uwes Designvorlagen)
+
+- **9 Rubriken** mit eigener Seite im Vorlagen-Design (`/[lang]/r/[slug]`): Lebensmittel, Elektronik & Technik, Haushalt & Wohnen, Drogerie & Gesundheit, Baby & Kind, Sport & Freizeit, Garten & Heimwerken, Auto & Motorrad, Multimedia & Entertainment. Jede Seite: Hero mit Rubrikbild, Vorteile, Rubrik-Karte, „Aktuelle Preisvergleiche – Top Angebote“, Kategorien, Leiste unten.
+- **Rubriken-Leiste** unter dem Kopfbereich auf allen Seiten – Wechsel zwischen den Rubriken mit einem Klick, aktive Rubrik markiert.
+- **Einkaufswagen** (Symbol oben rechts, kleines Fenster): sammelt Artikel aus allen Rubriken, gruppiert nach Rubrik, Mengen änderbar, Summe nur aus bekannten Preisen, „Als Einkaufsliste speichern“ (neue oder bestehende Liste). Es wird nichts gekauft.
+- **Top-Angebote:** Lebensmittel mit belegten Open-Prices-Preisen; alle anderen Rubriken mit selbst erfassten Händlerangeboten (Neuware, Preis inkl. Versand, mindestens zwei Händler) – ohne Daten ein ehrlicher Hinweis statt Beispielpreisen.
+- 15 neue Produktkategorien mit Datenblättern (Haushaltsgeräte, Werkzeug, Reifen, Fahrräder …), Startseite nach der Multimedia-Vorlage.
+- Bilder der Rubriken sind vorerst Ausschnitte aus der Designvorlage (unscharf); scharfe Fassungen folgen per Kie.ai nach Freigabe.
+
 ## Neu in 2.0
 
 | Bereich | Status | Umsetzung |

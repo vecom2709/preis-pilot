@@ -2,8 +2,8 @@ const de = {
   world: { food: "Lebensmittel", media: "Multimedia" },
   nav: { hub: "Übersicht", compare: "Vergleich", advisor: "Kaufberater", abos: "Abos & Streaming", wishlist: "Merkliste" },
   hub: {
-    title: "Multimedia",
-    intro: "Elektronik, Gaming, Software und Abos – mit deinen eigenen Produktdaten, belegten Händlerpreisen, Preisverlauf und Preisalarmen.",
+    title: "Alle Produkte",
+    intro: "Produkte aller Rubriken außer Lebensmittel – mit Datenblatt, datierten Händlerpreisen, Preisverlauf, Vergleich und Alarmen.",
     categories: "Kategorien",
     myProducts: "Meine Produkte",
     noProducts: "Noch keine Produkte. Lege ein Produkt in einer Kategorie an – mit Modellnummer und Herstellerangaben.",

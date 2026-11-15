@@ -22,7 +22,7 @@ export function Logo({ onDark = false, tagline }: { onDark?: boolean; tagline?: 
       <LogoMark />
       <span className="leading-none">
         <span className={`block text-[1.55rem] font-extrabold tracking-[-0.025em] ${onDark ? "text-white" : "text-ink"}`}>Preis-Pilot</span>
-        {tagline && <span className={`mt-1 block text-[0.72rem] font-medium ${onDark ? "text-white/85" : "text-ink-soft"}`}>{tagline}</span>}
+        {tagline && <span className={`mt-1 hidden text-[0.72rem] font-medium sm:block xl:hidden 2xl:block ${onDark ? "text-white/85" : "text-ink-soft"}`}>{tagline}</span>}
       </span>
     </span>
   );

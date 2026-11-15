@@ -12,7 +12,9 @@ import { findMediaCategory } from "@/lib/media/specs";
 import { uid, updateData, useAppData, useHydrated } from "@/lib/store/local";
 import { Notice } from "@/components/ui/Notice";
 import { IconBell, IconCompare, IconExternal, IconPlus, IconStar, IconTrash } from "@/components/ui/icons";
-import { Freshness, productTitle, schemaFor, specValue, useMedia } from "./shared";
+import { Freshness, bestNew, productTitle, schemaFor, specValue, useMedia } from "./shared";
+import { AddToCart } from "@/components/cart/Cart";
+import { rubricOf } from "@/lib/rubrics";
 
 const CONDITIONS: Condition[] = ["new", "refurbished", "demo", "used", "digital", "subscription"];
 const AVAILABILITIES: Availability[] = ["in_stock", "limited", "out_of_stock", "unknown"];
@@ -29,7 +31,7 @@ export function ProductView() {
   const product = data.products.find((p) => p.id === id);
   if (!product) {
     return (
-      <Notice tone="warn" action={<Link className="btn btn-quiet btn-sm" href={`/${locale}/media`}>{t.nav.hub}</Link>}>{t.product.notFound}</Notice>
+      <Notice tone="warn" action={<Link className="btn btn-quiet btn-sm" href={`/${locale}/produkte`}>{t.nav.hub}</Link>}>{t.product.notFound}</Notice>
     );
   }
   const offers = data.offers.filter((o) => o.productId === product.id);
@@ -45,23 +47,24 @@ export function ProductView() {
       offers: d.offers.filter((o) => o.productId !== id),
       watches: d.watches.filter((w) => w.productId !== id),
     }));
-    router.push(`/${locale}/media${cat ? `/c/${cat.slug}` : ""}`);
+    router.push(`/${locale}/produkte${cat ? `/c/${cat.slug}` : ""}`);
   }
 
   return (
     <div className="space-y-8">
       <h1 className="display text-[2rem] sm:text-[2.5rem]">{productTitle(product)}</h1>
       <div className="-mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-        {cat && <Link href={`/${locale}/media/c/${cat.slug}`} className="text-pine underline-offset-4 hover:underline">{cat.label[locale]}</Link>}
+        {cat && <Link href={`/${locale}/produkte/c/${cat.slug}`} className="text-pine underline-offset-4 hover:underline">{cat.label[locale]}</Link>}
         <span className="num text-ink-soft">{t.product.model}: {product.model || t.product.unknown}</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
+        <CartFor productId={product.id} />
         <button type="button" className="btn btn-quiet btn-sm" aria-pressed={product.wishlist} onClick={toggleWish}>
           <IconStar width={16} height={16} fill={product.wishlist ? "currentColor" : "none"} />
           {product.wishlist ? t.product.wishlistRemove : t.product.wishlistAdd}
         </button>
-        <Link className="btn btn-quiet btn-sm" href={`/${locale}/media/compare?cat=${product.category}&ids=${encodeURIComponent(product.id)}`}>
+        <Link className="btn btn-quiet btn-sm" href={`/${locale}/produkte/compare?cat=${product.category}&ids=${encodeURIComponent(product.id)}`}>
           <IconCompare width={16} height={16} />{t.product.compareAdd}
         </Link>
         {confirmDelete ? (
@@ -88,6 +91,18 @@ export function ProductView() {
         </div>
       </div>
     </div>
+  );
+}
+
+function CartFor({ productId }: { productId: string }) {
+  const data = useAppData();
+  const p = data.products.find((x) => x.id === productId)!;
+  const best = bestNew(data.offers, productId);
+  return (
+    <AddToCart className="btn-sm" item={{
+      kind: "product", ref: p.id, name: productTitle(p), detail: p.model || null, rubric: rubricOf(p.category, "products")?.slug ?? null, image: null,
+      priceCents: best?.totalCents ?? null, priceSource: best ? "manual" : null, priceStore: best?.merchant ?? null, priceDate: best?.observedAt ?? null,
+    }} />
   );
 }
 

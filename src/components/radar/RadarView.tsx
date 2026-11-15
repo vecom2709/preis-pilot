@@ -73,7 +73,7 @@ function ProductWatches() {
             return (
               <li key={watch.id} className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <Link href={`/${locale}/media/product?id=${encodeURIComponent(watch.productId)}`} className="min-w-0 flex-1 font-semibold hover:text-pine">
+                  <Link href={`/${locale}/produkte/product?id=${encodeURIComponent(watch.productId)}`} className="min-w-0 flex-1 font-semibold hover:text-pine">
                     {product ? `${product.brand} ${product.name}` : watch.productId}
                   </Link>
                   <span className="num text-sm text-ink-soft">{fmt(w.threshold, { price: formatCents(watch.thresholdCents, intl), condition: w.conditions[watch.condition] })}</span>

@@ -21,14 +21,14 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
     <div className="full-bleed -mb-28 -mt-6 lg:-mt-10 xl:-mb-16">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-r from-[#eef5f6] via-[#f2f8f8] to-[#e6f1f2] dark:from-mist dark:via-mist dark:to-mist-strong">
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[945/279] h-full max-w-[54%] md:block">
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[7/3] h-full max-w-[48%] md:block">
           <Image
             src="/images/hero-home.webp"
             alt=""
             fill
             priority
             sizes="74vw"
-            className="object-cover object-right [mask-image:linear-gradient(to_right,transparent,black_26%)]"
+            className="object-cover object-right [mask-image:linear-gradient(to_right,transparent,black_12%)]"
           />
         </div>
         <div className="relative mx-auto max-w-[1560px] px-4 pb-9 pt-7 sm:px-6 md:min-h-[380px] md:pb-10 md:pt-8 lg:px-10">

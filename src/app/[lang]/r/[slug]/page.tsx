@@ -40,8 +40,8 @@ export default async function RubricPage({ params }: PageProps<"/[lang]/r/[slug]
   return (
     <div className="full-bleed -mb-28 -mt-6 lg:-mt-10 xl:-mb-16">
       <section className="relative overflow-hidden bg-gradient-to-r from-[#eef5f6] via-[#f2f8f8] to-[#e6f1f2] dark:from-mist dark:via-mist dark:to-mist-strong">
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[840/330] h-full max-w-[56%] md:block">
-          <Image src={hero} alt="" fill priority sizes="62vw" className="object-cover object-right [mask-image:linear-gradient(to_right,transparent,black_24%)]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden aspect-[7/3] h-full max-w-[56%] md:block">
+          <Image src={hero} alt="" fill priority sizes="62vw" className="object-cover [mask-image:linear-gradient(to_right,transparent,black_18%)]" />
         </div>
         <div className="relative mx-auto max-w-[1560px] px-4 pb-9 pt-7 sm:px-6 md:min-h-[360px] md:pb-10 md:pt-8 lg:px-10">
           <p className="max-w-[42rem] text-[0.74rem] font-bold uppercase tracking-[0.2em] text-ink sm:text-[0.78rem] sm:tracking-[0.3em]">{[...L.eyebrow, r.label[lang]].join("  ·  ")}</p>
@@ -53,7 +53,7 @@ export default async function RubricPage({ params }: PageProps<"/[lang]/r/[slug]
           <p className="mt-2.5 max-w-[31rem] text-[1rem] text-ink-soft sm:text-[1.05rem]">{R.heroText}</p>
           <div className="mt-5"><HeroSearch /></div>
         </div>
-        <div className="relative aspect-[16/7] w-full md:hidden">
+        <div className="relative aspect-[7/3] w-full md:hidden">
           <Image src={hero} alt="" fill sizes="100vw" className="object-cover" />
         </div>
       </section>

@@ -1,0 +1,58 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useI18n } from "@/i18n/client";
+import { IconHome, IconList, IconScan, IconSearch, IconWallet } from "@/components/ui/icons";
+import { isActive, routes, type NavKey } from "./nav";
+
+// Mobile Navigation: die häufigsten Aufgaben mit dem Daumen erreichbar, Scannen in der Mitte.
+export function BottomNav() {
+  return <BottomNavView pathname={usePathname()} />;
+}
+
+/** Ohne aktiven Pfad nutzbar – dient als statischer Platzhalter beim Vorab-Rendern */
+export function BottomNavView({ pathname }: { pathname: string }) {
+  const { locale, t } = useI18n();
+  const items: { key: NavKey; label: string; Icon: typeof IconHome }[] = [
+    { key: "home", label: t.nav.home, Icon: IconHome },
+    { key: "search", label: t.nav.search, Icon: IconSearch },
+    { key: "scan", label: t.nav.scan, Icon: IconScan },
+    { key: "lists", label: t.nav.lists, Icon: IconList },
+    { key: "budget", label: t.nav.budget, Icon: IconWallet },
+  ];
+  return (
+    <nav
+      aria-label={t.nav.main}
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur xl:hidden"
+    >
+      <ul className="mx-auto grid max-w-md grid-cols-5">
+        {items.map(({ key, label, Icon }) => {
+          const active = isActive(pathname, locale, key);
+          const scan = key === "scan";
+          return (
+            <li key={key}>
+              <Link
+                href={`/${locale}${routes[key]}`}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-[60px] flex-col items-center justify-center gap-0.5 text-[0.7rem] font-semibold ${
+                  active ? "text-pine-strong" : "text-ink-soft"
+                }`}
+              >
+                <span
+                  className={
+                    scan
+                      ? "grid h-10 w-10 place-items-center rounded-full bg-pine text-on-pine"
+                      : `grid h-7 w-12 place-items-center rounded-full ${active ? "bg-pine-tint" : ""}`
+                  }
+                >
+                  <Icon width={scan ? 22 : 20} height={scan ? 22 : 20} />
+                </span>
+                <span className="truncate">{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}

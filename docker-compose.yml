@@ -1,0 +1,21 @@
+# Lokaler Betrieb: App + PostgreSQL (die Datenbank wird ab Phase 5/6 für Konten, Haushalte und Community genutzt).
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      PREISPILOT_USER_AGENT: ${PREISPILOT_USER_AGENT:-Preis-Pilot/0.1 (info@vecom-design.it)}
+      DATABASE_URL: postgres://preispilot:${POSTGRES_PASSWORD:-preispilot}@db:5432/preispilot
+    depends_on: [db]
+    restart: unless-stopped
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: preispilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-preispilot}
+      POSTGRES_DB: preispilot
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    restart: unless-stopped
+volumes:
+  pgdata:

@@ -1,26 +1,240 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Farbsystem: Weiß/Off-White, Tannengrün (Primär), Anthrazit (Text), Safran nur für dokumentierte Angebote,
+   Schiefer für fehlende Daten. Kontraste nach WCAG 2.2 AA geprüft. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #ffffff;
+  --mist: #f2f7f8;
+  --mist-strong: #e3edef;
+  --ink: #0f2430;
+  --ink-soft: #46596a;
+  --line: #d9e5e8;
+  --pine: #0b7d78;
+  --pine-strong: #07615d;
+  --pine-tint: #ddf3f1;
+  --on-pine: #ffffff;
+  --petrol: #0b3a45;
+  --petrol-2: #0e4b56;
+  --aqua: #22d3c5;
+  --saving: #15803d;
+  --saffron: #b9790f;
+  --saffron-text: #8a5a06;
+  --saffron-tint: #fbf1dd;
+  --slate: #627480;
+  --danger: #b3261e;
+  --danger-tint: #fbe9e7;
+  --focus: #0b7d78;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #13232b;
+  --mist: #0e1b21;
+  --mist-strong: #1b2f38;
+  --ink: #e6f0f2;
+  --ink-soft: #a3b6be;
+  --line: #27404a;
+  --pine: #3cc9bd;
+  --pine-strong: #74ddd3;
+  --pine-tint: #123a3d;
+  --on-pine: #062224;
+  --petrol: #07242c;
+  --petrol-2: #0a313b;
+  --aqua: #2ee0d2;
+  --saving: #15803d;
+  --saffron: #e2a845;
+  --saffron-text: #ebbd6a;
+  --saffron-tint: #3a2e17;
+  --slate: #8ea3ac;
+  --danger: #f2867d;
+  --danger-tint: #3d2220;
+  --focus: #74ddd3;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-mist-strong: var(--mist-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-pine: var(--pine);
+  --color-pine-strong: var(--pine-strong);
+  --color-pine-tint: var(--pine-tint);
+  --color-on-pine: var(--on-pine);
+  --color-petrol: var(--petrol);
+  --color-petrol-2: var(--petrol-2);
+  --color-aqua: var(--aqua);
+  --color-saving: var(--saving);
+  --color-saffron: var(--saffron);
+  --color-saffron-text: var(--saffron-text);
+  --color-saffron-tint: var(--saffron-tint);
+  --color-slate: var(--slate);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --radius-tag: 4px;
+  --radius-panel: 14px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: clip;
+  background: var(--mist);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  font-stretch: 100%;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@layer components {
+  /* Preise wie auf dem Regaletikett: schmal, kräftig, gleich breite Ziffern */
+  .price {
+    font-stretch: 70%;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .display {
+    font-stretch: 82%;
+    font-weight: 750;
+  }
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.55rem 1.05rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    white-space: nowrap;
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, var(--pine-strong), var(--pine));
+    color: var(--on-pine);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--pine-strong);
+  }
+  /* heller Aktionsknopf auf dunklen Flächen (wie „Zum Planer“) */
+  .btn-aqua {
+    background: linear-gradient(90deg, #5eead4, var(--aqua));
+    color: #062a2e;
+  }
+  .btn-aqua:hover {
+    background: #5eead4;
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    background: var(--mist-strong);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid currentColor;
+  }
+  .btn-sm {
+    min-height: 36px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.875rem;
+  }
+  .field {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.55rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+  }
+  .field::placeholder {
+    color: var(--slate);
+  }
+  .field:focus-visible {
+    outline-offset: 0;
+    border-color: var(--pine);
+  }
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 0.3rem;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  /* Abschnitt über die volle Fensterbreite innerhalb des zentrierten Inhalts */
+  .full-bleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+  .prose-narrow {
+    max-width: 68ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

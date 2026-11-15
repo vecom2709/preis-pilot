@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { locales, type Locale } from "@/i18n/config";
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// Netlify setzt URL automatisch auf die Adresse des Projekts
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.URL ?? "http://localhost:3000";
 
 const ogLocale: Record<Locale, string> = { de: "de_DE", it: "it_IT", en: "en_GB" };
 

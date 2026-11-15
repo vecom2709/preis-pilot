@@ -1,0 +1,14 @@
+# Netlify: Next.js wird automatisch mit der aktuellen Netlify-Laufzeit (OpenNext) gebaut.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+  # Vorschau: für Suchmaschinen gesperrt. Für den echten Start entfernen.
+  PREISPILOT_NOINDEX = "1"
+
+# Next.js-Laufzeit von Netlify (Serverfunktionen, Middleware, Bildoptimierung) – immer aktuelle Fassung
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

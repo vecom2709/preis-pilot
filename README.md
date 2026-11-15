@@ -1,8 +1,8 @@
-# Preis-Pilot – Clever einkaufen. Mehr sparen.
+# Preis-Pilot 2.0 – Vergleichen. Sparen. Besser kaufen.
 
-Web-App für Einkaufslisten, Budget und Preisvergleich auf Basis **belegter** Preise. Für Deutschland und Italien, auf Deutsch, Italienisch und Englisch, ohne Konto nutzbar.
+Web-App für Lebensmittel **und** Multimedia: Einkaufslisten, Budget, Preisvergleich auf Basis **belegter** Preise, technischer Produktvergleich, Abo-Center und Familienbudget. Für Deutschland und Italien, auf Deutsch, Italienisch und Englisch, ohne Konto nutzbar.
 
-**Stand: Version 0.1** = Phase 1 komplett, dazu der funktionsfähige Kern aus Phase 2–4 (siehe unten).
+**Stand: Version 2.0** – alle Funktionen aus 1.0 (siehe `docs/FUNKTIONEN-1.0.md`) plus Multimedia-Welt. Was fertig ist und was bewusst fehlt, steht unten und im `ENTWICKLUNGSBERICHT.md`.
 
 ---
 
@@ -24,7 +24,7 @@ docker compose up --build
 
 Konfiguration über `.env` (Vorlage: `.env.example`). Für den reinen Betrieb von v0.1 ist **keine** Datenbank und **kein** API-Schlüssel nötig.
 
-## Was v0.1 kann
+## Was 1.0 kann (weiterhin enthalten)
 
 | Bereich | Status | Umsetzung |
 |---|---|---|
@@ -45,13 +45,36 @@ Konfiguration über `.env` (Vorlage: `.env.example`). Für den reinen Betrieb vo
 | SEO | fertig | Metadaten je Seite, kanonische Adressen, hreflang, Sitemap, robots.txt, strukturierte Daten (Product + belegte Preisspanne) |
 | Datenmodell PostgreSQL (alle 17 Modelle + Haushaltsmitglieder) | fertig, noch nicht angebunden | `src/db/schema.ts`, Migration `drizzle/0000_init.sql` |
 
+## Neu in 2.0
+
+| Bereich | Status | Umsetzung |
+|---|---|---|
+| Zwei Welten, ein Design | fertig | Umschalter „Lebensmittel / Multimedia“ unter dem Kopfbereich auf allen Geräten. Multimedia ist dunkler und technischer (Petrol + Signalblau), gleiche Marke |
+| Multimedia-Kategorien | fertig | TV & Heimkino, Smartphones & Tablets, Computer & Hardware, Gaming, Foto/Video/Audio, Software – je mit eigenem Datenblatt |
+| Produkte & Varianten | fertig | Erfassung nach Datenblatt mit Herstellerquelle; Varianten (Modellnummer, Speicher, Größe, Plattform, Region, Edition) werden nie vermischt; leere Angaben bleiben „nicht angegeben“ |
+| Best-Price-Engine | fertig | Gesamtpreis = Preis + Versand, unbekannter Versand hinten, Neu/Gebraucht/Refurbished/Vorführ/Digital/Abo getrennt, je Händler nur die jüngste Beobachtung, „aktuell“ nur ≤ 24 h |
+| Preisverlauf | fertig | Nur echte Beobachtungen, Lücken sichtbar, 30/90/180-Tage-Tiefst- und Durchschnittspreis nur bei ausreichender Datenbasis, vorsichtige Einordnung statt Prognose |
+| Referenzpreis § 11 PAngV | fertig | Niedrigster Preis desselben Händlers in den 30 Tagen vor einer Ermäßigung; ohne Daten ausdrücklich „nicht belegbar“ |
+| Technischer Vergleich | fertig | Prioritäten je Merkmal (0–3), Punkte nur aus bei allen bekannten Werten, Datenblatt-Abdeckung, „nur Unterschiede“ |
+| Kaufberater | fertig | Regelbasiert (keine KI): Kategorie, Budget, Mindestwerte, Prioritäten, gebraucht erlaubt; Ausschlussgründe sichtbar |
+| SparGuard | fertig | Warnung nur bei belegter Abweichung (< 60 % des Medians) oder Nicht-Neuware; Fehlendes neutral als „unbekannt“ |
+| Merkliste, Produktalarme | fertig | Alarm nur bei neu erfassten Angeboten unter der Grenze; Übersicht im SparRadar |
+| Abo- & Streaming-Center | fertig | Monat/Jahr, nächste Zahlung, Kündigungstermin nur bei vollständigen Vertragsangaben, Abo-Sparcheck (Doppel-Abos, Jahrestarif, ungenutzt, Familientarif, Preiserhöhung). Keine Kontoanbindung, keine automatische Kündigung |
+| Familienbudget, Sparziele | fertig | Monatsplan nach 8 Bereichen, bezahlte Einkäufe + aktive Abos werden gegengerechnet; Sparziele ohne Zinsversprechen |
+| Spielepreise live | vorbereitet | `/api/games` (IsThereAnyDeal, autorisierte Shops, EUR). Aktiv mit `ITAD_API_KEY`; ohne Schlüssel klare Meldung |
+| Filme/Serien, Streaming-Verfügbarkeit | vorbereitet | `/api/titles` (TMDB, Verfügbarkeit von JustWatch, nur Verweise). Aktiv mit `TMDB_API_TOKEN`; fehlende Länderangabe = „unbekannt“ |
+| Shopping-Autopilot | Kern fertig | Prüft Alarme und Budget bei jedem Öffnen automatisch und zeigt Treffer; es gibt in der App keinen Kauf-, Zahlungs- oder Bestellweg (per Test abgesichert) |
+| Datenmodell 2.0 | fertig, noch nicht angebunden | 13 neue Tabellen (`drizzle/0001_v2_multimedia.sql`), mit PGlite geprüft inkl. Variantensperre |
+| Admin 2.0, Monetarisierung | vorbereitet | Tabelle `data_source_connections` (Quellenstatus) und Kennzeichnung `sponsored` für Partnerangebote. Nichts davon ist live – Freigabe nötig |
+
 ## Architektur
 
 ```
 src/
   app/                 Seiten (App Router) und API-Routen
     [lang]/…           Sprachseiten
-    api/               search, product/[code], prices, offers  (Zod-validiert, Rate-Limit)
+    [lang]/media/…     Multimedia-Welt (Übersicht, Kategorie, Produkt, Vergleich, Berater, Abos)
+    api/               search, product/[code], prices, offers, category, comparisons, games, titles
   components/          Oberfläche (keine Geschäftslogik)
   lib/                 Geschäftslogik – rein, ohne Netzwerk, vollständig getestet
     money.ts           Geldbeträge in ganzen Cent
@@ -61,6 +84,9 @@ src/
     basket.ts          Smart Basket / Supermarkt-Vergleich
     price-quality.ts   Qualitätsprüfung und Angebotsstatus
     alerts.ts          Preisalarme, Preiserhöhungen
+    media/             2.0: Datenblätter (specs.ts) und Engine (Bestpreis, Verlauf, Vergleich, Berater, SparGuard)
+    subscriptions.ts   2.0: Abo-Kosten, Fristen, Sparcheck
+    household.ts       2.0: Familienbudget, Sparziele
     sources/           Datenzugriff: Adapter für externe Quellen (*-map.ts = reine Abbildung)
     store/             Lokale Speicherung (Zod-Schema, Tab-Synchronisation)
   i18n/                Sprachen und Wörterbücher
@@ -79,6 +105,10 @@ Warum Drizzle statt Prisma: reines TypeScript ohne zusätzliche Binärdateien, l
 | Open Food Facts API v3 | Produktdaten per Barcode | ODbL (Datenbank), DbCL (Inhalte), Bilder CC BY-SA 3.0 | Quellenangabe auf jeder Seite (umgesetzt im Fußbereich und auf der Produktseite), Share-Alike bei abgeleiteten Datenbanken |
 | Search-a-licious | Volltextsuche | wie oben | – |
 | Open Prices API v1 | Preise, Geschäfte, Nachweise | ODbL, Nachweisfotos CC BY-SA 4.0 | wie oben |
+| IsThereAnyDeal API (2.0, optional) | Spielepreise autorisierter Shops | Nutzungsbedingungen von ITAD, kostenloser Schlüssel | Quellenangabe (umgesetzt) |
+| TMDB API (2.0, optional) | Film-/Serien-Metadaten, Streaming-Verfügbarkeit (Daten von JustWatch) | TMDB-Nutzungsbedingungen, kostenloser Schlüssel | Hinweis „TMDB · JustWatch“ (umgesetzt) |
+
+Elektronikpreise: Es gibt keine freie, rechtlich nutzbare Quelle (EPREL-Produkt-API nur mit qualifiziertem E-Siegel, CheapShark nur USD, Scraping ausgeschlossen). Deshalb arbeitet der Multimedia-Bereich mit selbst erfassten, datierten Händlerangeboten, wie im Auftrag für diesen Fall vorgesehen. Händler- oder Affiliate-Feeds nur nach deiner Freigabe.
 
 - User-Agent `Preis-Pilot/0.1 (info@vecom-design.it)` wird bei jeder Anfrage gesendet (Pflicht laut Open Food Facts). Anpassbar über `PREISPILOT_USER_AGENT`.
 - Grenzen der Quelle: Produktabfragen 15/min, Suche 10/min pro IP. Daher Server-Cache (Produkte: Stunden, Preise: Minuten) und eigenes Rate-Limit (60/min pro Client).
@@ -92,13 +122,14 @@ Ausgeschlossen aus Vergleichen, Summen und Alarmen: Preise älter als 365 Tage, 
 ## Tests
 
 ```bash
-npm test                 # 28 Unit-Tests (Logik + echte, unveränderte API-Antworten in tests/fixtures)
+npm test                 # 52 Unit-Tests (Logik 1.0 + 2.0, echte API-Antworten in tests/fixtures, Code-Wächter)
 npm run test:live        # 7 Live-Tests gegen die laufende App und die echten Quellen (LIVE=1, PP_BASE_URL)
-npm run test:e2e         # 5 Browser-Tests (CHROME_PATH, PP_BASE_URL)
+npm run test:e2e         # 12 Browser-Tests (CHROME_PATH, PP_BASE_URL)
+npm run test:a11y        # axe-core WCAG 2.2 AA auf 13 Seiten, mobil und Desktop
 npm run typecheck && npx eslint src
 ```
 
-Stand 15.11.2026: 40/40 bestanden, 0 ESLint-Befunde, axe-core (WCAG 2.2 AA) auf 11 Seiten in Hell und Dunkel: 0 Verstöße.
+Pflichttests 1.0 (1–20) siehe unten, Pflichttests 2.0 (1–25) siehe `ENTWICKLUNGSBERICHT.md`.
 
 | Pflichttest aus dem Auftrag | Status |
 |---|---|
@@ -124,6 +155,9 @@ Stand 15.11.2026: 40/40 bestanden, 0 ESLint-Befunde, axe-core (WCAG 2.2 AA) auf 
 | 20 Regressionstests | ✓ alle Suiten automatisiert |
 
 ## Offen dokumentierte Einschränkungen
+
+- 2.0: Multimedia-Preise stammen nur aus deinen eigenen Erfassungen (mit Datum und Händler) – bis ein Händler-Feed freigegeben ist. Spiele- und Filmdaten brauchen die kostenlosen Schlüssel.
+- 2.0: Multimedia-Daten liegen wie alle Daten nur im Browser; Admin-Oberfläche und Synchronisation folgen mit dem Backend (Phase 6).
 
 - Die Preisabdeckung ist lückenhaft (Open Prices: rund 1.100 Geschäfte in Deutschland, rund 270 in Italien). Viele Produkte zeigen „Preis nicht verfügbar“ – gewollt, statt zu raten.
 - Kettenpreise stammen aus einzelnen Filialen.

@@ -54,6 +54,39 @@
   color-scheme: dark;
 }
 
+/* Multimedia-Welt: gleiche Marke (Petrol/Aqua), aber dunkler und technischer mit kühlem Signalblau.
+   Gilt immer, sobald eine Multimedia-Seite offen ist – unabhängig von Hell/Dunkel der Lebensmittelwelt. */
+:root:has(.world-media) {
+  --paper: #0f1d27;
+  --mist: #08131b;
+  --mist-strong: #172a37;
+  --ink: #e7f1f6;
+  --ink-soft: #a5b8c5;
+  --line: #22394a;
+  --pine: #4fc3f7;
+  --pine-strong: #8fd9fb;
+  --pine-tint: #0f3247;
+  --on-pine: #03141d;
+  --petrol: #061721;
+  --petrol-2: #0a2433;
+  --aqua: #2ee0d2;
+  --saving: #15803d;
+  --saffron: #e2a845;
+  --saffron-text: #ebbd6a;
+  --saffron-tint: #33281a;
+  --slate: #8ea3ac;
+  --danger: #f2867d;
+  --danger-tint: #3d2220;
+  --focus: #8fd9fb;
+  color-scheme: dark;
+}
+:root:has(.world-media) body {
+  background:
+    linear-gradient(rgba(79, 195, 247, 0.035) 1px, transparent 1px) 0 0 / 100% 40px,
+    linear-gradient(90deg, rgba(79, 195, 247, 0.035) 1px, transparent 1px) 0 0 / 40px 100%,
+    var(--mist);
+}
+
 @theme inline {
   --color-paper: var(--paper);
   --color-mist: var(--mist);

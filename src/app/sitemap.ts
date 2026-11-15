@@ -2,9 +2,11 @@ import type { MetadataRoute } from "next";
 import { locales } from "@/i18n/config";
 import { SITE_URL } from "@/lib/seo";
 import { categories } from "@/lib/categories";
+import { mediaCategories } from "@/lib/media/specs";
 
 // Öffentliche, suchmaschinenrelevante Seiten in allen Sprachen mit hreflang-Varianten
-const paths = ["", "/search", "/offers", "/comparisons", "/categories", ...categories.map((c) => `/category/${c.slug}`), "/scan", "/lists", "/budget", "/sources", "/privacy"];
+const paths = ["", "/search", "/offers", "/comparisons", "/categories", ...categories.map((c) => `/category/${c.slug}`), "/scan", "/lists", "/budget", "/sources", "/privacy",
+  "/media", ...mediaCategories.map((c) => `/media/c/${c.slug}`), "/media/compare", "/media/advisor", "/media/abos"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return paths.flatMap((path) =>

@@ -45,3 +45,13 @@ export const IconCalculator = (p: P) => (<svg {...base(p)}><rect x="5" y="3.5" w
 export const IconChevron = (p: P) => (<svg {...base(p)}><path d="m9 6 6 6-6 6" /></svg>);
 export const IconBasket = (p: P) => (<svg {...base(p)}><path d="M4 9h16l-1.5 9.5a2 2 0 0 1-2 1.5h-9a2 2 0 0 1-2-1.5zM8.5 9 11 4M15.5 9 13 4M9 13v3M12 13v3M15 13v3" /></svg>);
 export const IconChecklist = (p: P) => (<svg {...base(p)}><rect x="4" y="4" width="16" height="16" rx="2.5" /><path d="m7.5 10 1.5 1.5L12 8.5M7.5 15.5l1.5 1.5 3-3M14 10h3M14 15.5h3" /></svg>);
+export const IconScreen = (p: P) => (<svg {...base(p)}><rect x="3" y="4.5" width="18" height="12" rx="1.5" /><path d="M9 20h6M12 16.5V20" /></svg>);
+export const IconCart = (p: P) => (<svg {...base(p)}><path d="M3.5 4.5h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h7.9a1.5 1.5 0 0 0 1.5-1.1L20.5 8H6.6" /><circle cx="9.5" cy="19.5" r="1.2" /><circle cx="17" cy="19.5" r="1.2" /></svg>);
+export const IconCompare = (p: P) => (<svg {...base(p)}><rect x="3.5" y="4.5" width="7" height="15" rx="1.5" /><rect x="13.5" y="4.5" width="7" height="15" rx="1.5" /><path d="M6 9h2M16 9h2M6 13h2M16 13h2" /></svg>);
+export const IconCompass = (p: P) => (<svg {...base(p)}><circle cx="12" cy="12" r="8.5" /><path d="m15.5 8.5-2 5-5 2 2-5z" /></svg>);
+export const IconPlay = (p: P) => (<svg {...base(p)}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m10.5 9.5 4 2.5-4 2.5z" /></svg>);
+export const IconGamepad = (p: P) => (<svg {...base(p)}><path d="M7.5 8h9a4.5 4.5 0 0 1 4.3 5.8l-.9 3a2.2 2.2 0 0 1-3.8.8L14.5 16h-5l-1.6 1.6a2.2 2.2 0 0 1-3.8-.8l-.9-3A4.5 4.5 0 0 1 7.5 8z" /><path d="M8 11v3M6.5 12.5h3M15.5 12h.01M17.5 13.5h.01" /></svg>);
+export const IconPhone = (p: P) => (<svg {...base(p)}><rect x="7" y="3" width="10" height="18" rx="2" /><path d="M11 17.5h2" /></svg>);
+export const IconLaptop = (p: P) => (<svg {...base(p)}><rect x="5" y="5" width="14" height="10" rx="1.2" /><path d="M3 18.5h18" /></svg>);
+export const IconCamera = (p: P) => (<svg {...base(p)}><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.5-2h5.4l1.5 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" /><circle cx="12" cy="13" r="3.3" /></svg>);
+export const IconDisc = (p: P) => (<svg {...base(p)}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="2" /><path d="M12 6.5a5.5 5.5 0 0 1 5.5 5.5" /></svg>);

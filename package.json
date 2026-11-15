@@ -12,7 +12,8 @@
     "db:generate": "drizzle-kit generate",
     "test:live": "LIVE=1 vitest run tests/live.test.ts",
     "test:e2e": "node tests/e2e/browser.mjs",
-    "preview": "node scripts/preview.mjs"
+    "preview": "node scripts/preview.mjs",
+    "test:a11y": "node tests/e2e/a11y.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

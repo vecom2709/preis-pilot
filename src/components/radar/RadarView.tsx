@@ -5,6 +5,7 @@ import { useI18n } from "@/i18n/client";
 import { fmt } from "@/i18n";
 import { useJson } from "@/lib/use-json";
 import { evaluateAlerts } from "@/lib/alerts";
+import { watchMatches } from "@/lib/media/engine";
 import type { PricesResponse } from "@/lib/api-types";
 import { formatCents } from "@/lib/money";
 import { formatDate } from "@/lib/format";
@@ -28,6 +29,7 @@ export function RadarView() {
       <p className="prose-narrow -mt-4 text-ink-soft">{t.radar.intro}</p>
       {hydrated && data.alerts.length === 0 && <Notice>{t.radar.empty}</Notice>}
       {byCountry.map(([country, codes]) => <CountryAlerts key={country} country={country} codes={codes} />)}
+      {hydrated && <ProductWatches />}
 
       <section aria-labelledby="fav-title">
         <h2 id="fav-title" className="text-lg font-bold">{t.radar.favorites}</h2>
@@ -49,6 +51,55 @@ export function RadarView() {
       </section>
       <p className="text-sm text-ink-soft">{t.radar.pushNote}</p>
     </div>
+  );
+}
+
+/** Preisalarme für Multimedia-Produkte – geprüft gegen die selbst erfassten Händlerangebote */
+function ProductWatches() {
+  const { t, intl, locale } = useI18n();
+  const data = useAppData();
+  const w = t.watches;
+  const matches = watchMatches(data.watches, data.offers);
+  return (
+    <section aria-labelledby="pw-title" className="space-y-3">
+      <h2 id="pw-title" className="text-lg font-bold">{w.title}</h2>
+      {!data.watches.length ? (
+        <p className="text-ink-soft">{w.none}</p>
+      ) : (
+        <ul className="panel divide-y divide-line">
+          {data.watches.map((watch) => {
+            const product = data.products.find((p) => p.id === watch.productId);
+            const hits = matches.filter((m) => m.watchId === watch.id);
+            return (
+              <li key={watch.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <Link href={`/${locale}/media/product?id=${encodeURIComponent(watch.productId)}`} className="min-w-0 flex-1 font-semibold hover:text-pine">
+                    {product ? `${product.brand} ${product.name}` : watch.productId}
+                  </Link>
+                  <span className="num text-sm text-ink-soft">{fmt(w.threshold, { price: formatCents(watch.thresholdCents, intl), condition: w.conditions[watch.condition] })}</span>
+                  <button className="grid h-8 w-8 place-items-center rounded-full text-ink-soft hover:bg-mist hover:text-danger" aria-label={w.remove}
+                    onClick={() => updateData((d) => ({ ...d, watches: d.watches.filter((x) => x.id !== watch.id) }))}>
+                    <IconTrash width={16} height={16} />
+                  </button>
+                </div>
+                {hits.length ? (
+                  <ul className="mt-2 space-y-1">
+                    {hits.map(({ offer }) => (
+                      <li key={offer.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-pine-tint px-3 py-2 text-sm">
+                        <span>{fmt(w.match, { merchant: offer.merchant, price: formatCents(offer.priceCents + (offer.shippingCents ?? 0), intl) })}</span>
+                        <button className="btn btn-quiet btn-sm" onClick={() => updateData((d) => ({ ...d, watches: d.watches.map((x) => (x.id === watch.id ? { ...x, notifiedOfferIds: [...x.notifiedOfferIds, offer.id] } : x)) }))}>{w.seen}</button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-sm text-ink-soft">{w.noMatch}</p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 

@@ -9,6 +9,8 @@ import { todayIso, uid, updateData, useAppData, useHydrated } from "@/lib/store/
 import { BarChart, ProgressBar } from "@/components/charts/Charts";
 import { Notice } from "@/components/ui/Notice";
 import { IconPlus, IconTrash } from "@/components/ui/icons";
+import { HouseholdPlanner, SavingsGoals } from "./Household";
+import { HOUSEHOLD_CATEGORIES } from "@/lib/household";
 
 export function BudgetView() {
   const { t, intl } = useI18n();
@@ -19,7 +21,7 @@ export function BudgetView() {
 
   const months = monthlyTotals(data.purchases, 6);
   const currentMonth = months[months.length - 1]?.month;
-  const categories = [...new Set([...data.purchases.map((p) => p.category), ...data.budgets.map((b) => b.category)].filter((c): c is string => !!c))];
+  const categories = [...new Set([...HOUSEHOLD_CATEGORIES.map((c) => t.household.categories[c]), ...data.purchases.map((p) => p.category), ...data.budgets.map((b) => b.category)].filter((c): c is string => !!c))];
   const members = [...new Set([...data.purchases.map((p) => p.member), ...data.budgets.map((b) => b.member)].filter((c): c is string => !!c))];
 
   return (
@@ -27,6 +29,7 @@ export function BudgetView() {
       <p className="prose-narrow -mt-4 text-ink-soft">{t.budget.intro}</p>
       <datalist id="bud-cats">{categories.map((c) => <option key={c} value={c} />)}</datalist>
       <datalist id="bud-members">{members.map((c) => <option key={c} value={c} />)}</datalist>
+      <HouseholdPlanner />
 
       <section aria-labelledby="budgets-title" className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -51,6 +54,8 @@ export function BudgetView() {
           />
         </section>
       </div>
+
+      <SavingsGoals />
 
       <section aria-labelledby="purchases-title">
         <h2 id="purchases-title" className="text-lg font-bold">{t.budget.purchases}</h2>

@@ -272,3 +272,179 @@ export const auditLogs = pgTable("audit_logs", {
   details: jsonb("details"),
   createdAt: createdAt(),
 }, (t) => [index("audit_logs_entity_idx").on(t.entity, t.entityId), index("audit_logs_created_idx").on(t.createdAt)]);
+
+// ================= Preis-Pilot 2.0: Multimedia, Abos, Familienbudget, Datenquellen =================
+export const mediaCondition = pgEnum("media_condition", ["new", "used", "refurbished", "demo", "digital", "subscription"]);
+export const mediaAvailability = pgEnum("media_availability", ["in_stock", "limited", "out_of_stock", "unknown"]);
+export const offerSource = pgEnum("offer_source", ["manual", "feed", "affiliate", "partner_api"]);
+export const subCategory = pgEnum("sub_category", ["video", "music", "gaming", "cloud", "software", "productivity", "media", "other"]);
+export const billingCycle = pgEnum("billing_cycle", ["weekly", "monthly", "quarterly", "yearly"]);
+export const noticeUnit = pgEnum("notice_unit", ["days", "weeks", "months"]);
+export const subStatus = pgEnum("sub_status", ["active", "cancelled"]);
+export const usageLevel = pgEnum("usage_level", ["often", "sometimes", "rarely", "never"]);
+export const householdCategory = pgEnum("household_category", ["food", "household", "electronics", "multimedia", "streaming", "gaming", "digital", "other"]);
+export const titleType = pgEnum("title_type", ["movie", "series"]);
+export const sourceState = pgEnum("source_state", ["active", "needs_key", "disabled", "error"]);
+
+/** Multimedia-Produkte: eine Zeile je Variante (Marke + normalisierte Modellnummer + Variantenmerkmale) */
+export const mediaProducts = pgTable("media_products", {
+  id: id(),
+  category: varchar("category", { length: 40 }).notNull(),
+  specSchema: varchar("spec_schema", { length: 20 }).notNull(),
+  brand: varchar("brand", { length: 60 }).notNull(),
+  name: varchar("name", { length: 120 }).notNull(),
+  model: varchar("model", { length: 60 }).notNull(),
+  modelNormalized: varchar("model_normalized", { length: 60 }).notNull(),
+  /** Variantenschlüssel, z. B. "storageGb=256|screenInches=65" */
+  variantKey: varchar("variant_key", { length: 200 }).notNull().default(""),
+  specs: jsonb("specs").notNull().default({}),
+  specSourceUrl: text("spec_source_url"),
+  imageUrl: text("image_url"),
+  ean: varchar("ean", { length: 14 }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [
+  uniqueIndex("media_products_variant_uq").on(sql`lower(${t.brand})`, t.modelNormalized, t.variantKey),
+  index("media_products_category_idx").on(t.category),
+]);
+
+export const merchants = pgTable("merchants", {
+  id: id(),
+  name: varchar("name", { length: 80 }).notNull(),
+  website: text("website"),
+  country: varchar("country", { length: 2 }),
+  /** Impressum geprüft – null = nicht geprüft (wird als „unbekannt“ angezeigt, nicht als Verdacht) */
+  imprintUrl: text("imprint_url"),
+  imprintCheckedAt: timestamp("imprint_checked_at", { withTimezone: true }),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex("merchants_name_uq").on(sql`lower(${t.name})`)]);
+
+/** Händlerangebote mit Zeitstempel; „aktuell“ nur, wenn die Beobachtung frisch ist (≤ 24 h) */
+export const merchantOffers = pgTable("merchant_offers", {
+  id: id(),
+  mediaProductId: uuid("media_product_id").notNull().references(() => mediaProducts.id, { onDelete: "cascade" }),
+  merchantId: uuid("merchant_id").notNull().references(() => merchants.id, { onDelete: "cascade" }),
+  url: text("url"),
+  priceCents: integer("price_cents").notNull(),
+  /** null = Versandkosten unbekannt */
+  shippingCents: integer("shipping_cents"),
+  condition: mediaCondition("condition").notNull(),
+  availability: mediaAvailability("availability").notNull().default("unknown"),
+  warrantyMonths: integer("warranty_months"),
+  promo: text("promo"),
+  observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+  source: offerSource("source").notNull(),
+  /** Pflicht bei Partner-/Affiliate-Links: Kennzeichnung als Werbung */
+  sponsored: boolean("sponsored").notNull().default(false),
+  reportedBy: uuid("reported_by").references(() => userProfiles.id, { onDelete: "set null" }),
+  createdAt: createdAt(),
+}, (t) => [
+  index("merchant_offers_product_idx").on(t.mediaProductId, t.condition, t.observedAt),
+  check("merchant_offers_price_nonneg", sql`${t.priceCents} >= 0 AND (${t.shippingCents} IS NULL OR ${t.shippingCents} >= 0)`),
+]);
+
+export const wishlistItems = pgTable("wishlist_items", {
+  ownerId: uuid("owner_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  mediaProductId: uuid("media_product_id").notNull().references(() => mediaProducts.id, { onDelete: "cascade" }),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.ownerId, t.mediaProductId] })]);
+
+export const productWatches = pgTable("product_watches", {
+  id: id(),
+  ownerId: uuid("owner_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  mediaProductId: uuid("media_product_id").notNull().references(() => mediaProducts.id, { onDelete: "cascade" }),
+  thresholdCents: integer("threshold_cents").notNull(),
+  condition: mediaCondition("condition").notNull().default("new"),
+  pushConsentAt: timestamp("push_consent_at", { withTimezone: true }),
+  lastNotifiedOfferId: uuid("last_notified_offer_id"),
+  createdAt: createdAt(),
+}, (t) => [index("product_watches_product_idx").on(t.mediaProductId), check("product_watches_threshold_pos", sql`${t.thresholdCents} > 0`)]);
+
+/** Abos werden ausschließlich vom Nutzer erfasst – keine Anbindung fremder Konten, keine automatischen Kündigungen */
+export const subscriptions = pgTable("subscriptions", {
+  id: id(),
+  ownerId: uuid("owner_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  householdId: uuid("household_id").references(() => households.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 60 }).notNull(),
+  category: subCategory("category").notNull(),
+  priceCents: integer("price_cents").notNull(),
+  cycle: billingCycle("cycle").notNull(),
+  startDate: date("start_date").notNull(),
+  minTermMonths: integer("min_term_months"),
+  renewalMonths: integer("renewal_months"),
+  noticeValue: integer("notice_value"),
+  noticeUnit: noticeUnit("notice_unit"),
+  status: subStatus("status").notNull().default("active"),
+  endsOn: date("ends_on"),
+  usage: usageLevel("usage"),
+  yearlyOptionCents: integer("yearly_option_cents"),
+  familyPriceCents: integer("family_price_cents"),
+  familyPeople: integer("family_people"),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+}, (t) => [index("subscriptions_owner_idx").on(t.ownerId, t.status), check("subscriptions_price_nonneg", sql`${t.priceCents} >= 0`)]);
+
+export const subscriptionPriceChanges = pgTable("subscription_price_changes", {
+  id: id(),
+  subscriptionId: uuid("subscription_id").notNull().references(() => subscriptions.id, { onDelete: "cascade" }),
+  validFrom: date("valid_from").notNull(),
+  priceCents: integer("price_cents").notNull(),
+}, (t) => [index("subscription_price_changes_sub_idx").on(t.subscriptionId, t.validFrom)]);
+
+export const householdPlans = pgTable("household_plans", {
+  id: id(),
+  householdId: uuid("household_id").notNull().references(() => households.id, { onDelete: "cascade" }),
+  month: date("month").notNull(),
+  totalCents: integer("total_cents").notNull(),
+  createdAt: createdAt(),
+}, (t) => [uniqueIndex("household_plans_month_uq").on(t.householdId, t.month)]);
+
+export const householdPlanAllocations = pgTable("household_plan_allocations", {
+  planId: uuid("plan_id").notNull().references(() => householdPlans.id, { onDelete: "cascade" }),
+  category: householdCategory("category").notNull(),
+  cents: integer("cents").notNull(),
+}, (t) => [primaryKey({ columns: [t.planId, t.category] })]);
+
+export const savingsGoals = pgTable("savings_goals", {
+  id: id(),
+  ownerId: uuid("owner_id").notNull().references(() => userProfiles.id, { onDelete: "cascade" }),
+  householdId: uuid("household_id").references(() => households.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 60 }).notNull(),
+  targetCents: integer("target_cents").notNull(),
+  savedCents: integer("saved_cents").notNull().default(0),
+  monthlyCents: integer("monthly_cents").notNull().default(0),
+  createdAt: createdAt(),
+}, (t) => [check("savings_goals_target_pos", sql`${t.targetCents} > 0`)]);
+
+/** Lizenzierte Film-/Serien-Metadaten (z. B. TMDB) – nur Metadaten, keine Inhalte */
+export const mediaTitles = pgTable("media_titles", {
+  id: id(),
+  externalSource: varchar("external_source", { length: 20 }).notNull(),
+  externalId: varchar("external_id", { length: 40 }).notNull(),
+  type: titleType("type").notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  year: integer("year"),
+  attribution: text("attribution").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+}, (t) => [uniqueIndex("media_titles_ext_uq").on(t.externalSource, t.externalId)]);
+
+/** Streaming-Verfügbarkeit je Land; fehlender Eintrag = unbekannt (nie „nicht verfügbar“ annehmen) */
+export const streamingAvailability = pgTable("streaming_availability", {
+  id: id(),
+  titleId: uuid("title_id").notNull().references(() => mediaTitles.id, { onDelete: "cascade" }),
+  country: varchar("country", { length: 2 }).notNull(),
+  provider: varchar("provider", { length: 80 }).notNull(),
+  offerType: varchar("offer_type", { length: 20 }).notNull(),
+  checkedAt: timestamp("checked_at", { withTimezone: true }).notNull(),
+}, (t) => [index("streaming_availability_title_idx").on(t.titleId, t.country)]);
+
+/** Admin 2.0: Zustand jeder Datenquelle (aktiv, Schlüssel fehlt, deaktiviert, Fehler) */
+export const dataSourceConnections = pgTable("data_source_connections", {
+  key: varchar("key", { length: 40 }).primaryKey(),
+  label: varchar("label", { length: 80 }).notNull(),
+  state: sourceState("state").notNull().default("disabled"),
+  license: varchar("license", { length: 80 }),
+  lastSyncAt: timestamp("last_sync_at", { withTimezone: true }),
+  lastError: text("last_error"),
+  updatedAt: updatedAt(),
+});

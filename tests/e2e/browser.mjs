@@ -179,6 +179,82 @@ await test("Einkaufswagen: sammelt aus mehreren Rubriken, Summe nur aus bekannte
   assert.equal(await page.$eval("header button[aria-label^='Einkaufswagen']", (b) => b.innerText.trim()), "0");
 });
 
+// ---------- Preis-Pilot 3.0: Angebots-Engine ----------
+const ADMIN = process.env.PP_ADMIN_TOKEN;
+
+await test("3.0: Startseite zeigt Live-Angebote mit echten Bildern, Gesamtpreis und gültigen Händlerlinks", async (page) => {
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.goto(`${BASE}/de`, { waitUntil: "networkidle0" });
+  await page.waitForSelector("#live-title ~ section article, section[aria-labelledby='live-title'] article", { timeout: 20000 });
+  // Bilder laden „lazy“ – jede geprüfte Karte erst in den sichtbaren Bereich holen
+  for (const a of (await page.$$("section[aria-labelledby='live-title'] article")).slice(0, 8)) {
+    await a.evaluate((e) => e.scrollIntoView({ block: "center", inline: "center" }));
+    await a.$eval("img", (img) => (img.complete ? null : new Promise((r) => { img.onload = r; img.onerror = r; }))).catch(() => null);
+  }
+  const cards = await page.$$eval("section[aria-labelledby='live-title'] article", (as) => as.slice(0, 8).map((a) => ({
+    img: a.querySelector("img")?.naturalWidth ?? 0,
+    href: a.querySelector("a[target=_blank]")?.getAttribute("href") ?? "",
+    rel: a.querySelector("a[target=_blank]")?.getAttribute("rel") ?? "",
+    text: a.innerText,
+  })));
+  assert.ok(cards.length >= 4, "zu wenige Angebote");
+  for (const c of cards) {
+    assert.ok(c.img > 0, "Produktbild nicht geladen");
+    assert.match(c.href, /^https:\/\//);
+    assert.match(c.rel, /noopener/);
+    assert.match(c.text, /Score/);
+    assert.match(c.text, /geprüft|gesehen am/);
+  }
+});
+
+await test("3.0: Angebotssuche filtert nach Kategorie und sortiert nach Gesamtpreis", async (page) => {
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.goto(`${BASE}/de/offers/gaming-konsolen?sort=total`, { waitUntil: "networkidle0" });
+  await page.waitForSelector("main article", { timeout: 20000 });
+  const prices = await page.$$eval("main article", (as) => as.slice(0, 6).map((a) => {
+    const t = a.querySelector(".price")?.textContent ?? "";
+    return Number(t.replace(/[^\d,]/g, "").replace(",", "."));
+  }));
+  for (let i = 1; i < prices.length; i++) assert.ok(prices[i] >= prices[i - 1], `Sortierung falsch: ${prices.join(" ")}`);
+  assert.match(await page.$eval("main", (m) => m.innerText), /\d+ Angebote/);
+});
+
+await test("3.0: Preisalarm auf ein Angebot löst aus und erscheint in Glocke und SparRadar", async (page) => {
+  await page.setViewport({ width: 1280, height: 900 });
+  await page.goto(`${BASE}/de/offers?sort=score`, { waitUntil: "networkidle0" });
+  await page.waitForSelector("main article", { timeout: 20000 });
+  const first = (await page.$$("main article"))[0];
+  const priceText = await first.$eval(".price", (e) => e.textContent);
+  const cents = Math.round(Number(priceText.replace(/[^\d,]/g, "").replace(",", ".")) * 100);
+  await first.$eval("button[aria-label^='Preisalarm']", (b) => b.click());
+  await first.$eval("input[name=target]", (i, v) => { i.value = v; }, ((cents + 100) / 100).toFixed(2).replace(".", ","));
+  await first.$eval("form button[type=submit]", (b) => b.click());
+  await sleep(500);
+  assert.ok(await page.$("header a[aria-label*='Preisalarm']"), "Glocke mit ausgelöstem Alarm fehlt");
+  await page.goto(`${BASE}/de/radar`, { waitUntil: "networkidle0" });
+  assert.match(await page.$eval("#angebotsalarme", (e) => e.innerText), /Unter deinem Wunschpreis/);
+});
+
+await test("3.0: Mobil – Filter einklappbar, Angebote sofort sichtbar", async (page) => {
+  await page.setViewport({ width: 390, height: 844 });
+  await page.goto(`${BASE}/de/offers`, { waitUntil: "networkidle0" });
+  await page.waitForSelector("main article", { timeout: 20000 });
+  assert.equal(await page.$eval("#deal-filters", (e) => getComputedStyle(e).display), "none");
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  assert.ok(overflow <= 1, `waagerechter Überlauf ${overflow}px`);
+});
+
+if (ADMIN) await test("3.0: Admin geschützt, zeigt Quellenstatus und startet Aktualisierung", async (page) => {
+  assert.equal((await fetch(`${BASE}/de/admin`)).status, 401);
+  assert.equal((await fetch(`${BASE}/de/admin`, { headers: { Authorization: `Basic ${Buffer.from("admin:falsch").toString("base64")}` } })).status, 401);
+  await page.setExtraHTTPHeaders({ Authorization: `Basic ${Buffer.from(`admin:${ADMIN}`).toString("base64")}` });
+  await page.goto(`${BASE}/de/admin`, { waitUntil: "networkidle0" });
+  const text = await page.$eval("main", (m) => m.innerText);
+  for (const s of ["Datenquellen angebunden", "Aktive Shops", "API- und Datenfeed-Status", "Historie der automatischen Aktualisierungen", "Open Prices", "GOG.com", "Steam"]) assert.ok(text.includes(s), `fehlt: ${s}`);
+  await clickText(page, "Jetzt aktualisieren");
+  await page.waitForFunction(() => /\badmin\b/.test(document.querySelector("main")?.innerText ?? ""), { timeout: 45000 });
+});
+
 await browser.close();
 for (const [s, n] of results) console.log(s, n);
 process.exit(results.some(([s]) => s === "✗") ? 1 : 0);

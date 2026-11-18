@@ -20,7 +20,16 @@ const nextConfig: NextConfig = {
   output: process.env.NETLIFY ? undefined : "standalone",
   images: {
     // Produktbilder werden über den eigenen Server ausgeliefert – die IP der Nutzer geht nicht an Dritte.
-    remotePatterns: [{ protocol: "https", hostname: "images.openfoodfacts.org", pathname: "/images/products/**" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "images.openfoodfacts.org", pathname: "/images/products/**" },
+      // Angebotsbilder der angebundenen Quellen (andere Hosts werden ohne Optimierung geladen)
+      { protocol: "https", hostname: "images.gog-statics.com" },
+      { protocol: "https", hostname: "shared.akamai.steamstatic.com" },
+      { protocol: "https", hostname: "shared.fastly.steamstatic.com" },
+      { protocol: "https", hostname: "cdn.akamai.steamstatic.com" },
+      { protocol: "https", hostname: "i.ebayimg.com" },
+      { protocol: "https", hostname: "assets.isthereanydeal.com" },
+    ],
   },
   async headers() {
     return [

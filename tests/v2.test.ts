@@ -271,8 +271,8 @@ describe("Autopilot erstellt keine Käufe (Test 16)", () => {
   it("enthält keinen Bestell-, Zahlungs- oder Checkout-Weg; Händlerlinks öffnen nur extern auf Nutzerklick", () => {
     for (const [f, src] of code) {
       expect(src, f).not.toMatch(/checkout|stripe|paypal|klarna|\/cart\/add|placeOrder|createOrder/i);
-      // jeder fetch mit POST geht nur an die eigenen Datenquellen (Open Prices/ITAD-Preisabfrage), nie an Händler
-      for (const m of src.matchAll(/method:\s*"POST"/g)) expect(src.slice(Math.max(0, m.index! - 300), m.index), f).toMatch(/isthereanydeal\.com\/games\/prices/);
+      // jeder fetch mit POST geht nur an Datenquellen (ITAD-Preisabfrage, eBay-Anmeldung per OAuth), nie an Händler
+      for (const m of src.matchAll(/method:\s*"POST"/g)) expect(src.slice(Math.max(0, m.index! - 300), m.index), f).toMatch(/isthereanydeal\.com\/games\/prices|api\.ebay\.com\/identity\/v1\/oauth2\/token/);
     }
     const external = code.flatMap(([, src]) => [...src.matchAll(/target="_blank"[^>]*/g)].map((m) => m[0]));
     for (const a of external) expect(a).toMatch(/noopener/);

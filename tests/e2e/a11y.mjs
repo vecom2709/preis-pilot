@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 
 const BASE = process.env.PP_BASE_URL ?? "http://localhost:3000";
 const axeSource = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
-const pages = ["/de", "/de/search", "/de/lists", "/de/budget", "/de/radar", "/it", "/de/r/lebensmittel", "/de/r/elektronik-technik", "/it/r/multimedia-entertainment", "/de/produkte", "/de/produkte/c/tv-heimkino", "/de/produkte/c/gaming", "/de/produkte/compare", "/de/produkte/advisor", "/de/produkte/abos", "/en/produkte/abos"];
+const pages = ["/de", "/de/search", "/de/lists", "/de/budget", "/de/radar", "/de/offers", "/de/offers/lebensmittel-getraenke", "/de/sources", "/it", "/de/r/lebensmittel", "/de/r/elektronik-technik", "/it/r/multimedia-entertainment", "/de/produkte", "/de/produkte/c/tv-heimkino", "/de/produkte/c/gaming", "/de/produkte/compare", "/de/produkte/advisor", "/de/produkte/abos", "/en/produkte/abos"];
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome", args: ["--no-sandbox"] });
 let failed = 0;
 for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {

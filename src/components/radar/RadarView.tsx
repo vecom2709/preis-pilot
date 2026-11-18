@@ -6,6 +6,7 @@ import { fmt } from "@/i18n";
 import { useJson } from "@/lib/use-json";
 import { evaluateAlerts } from "@/lib/alerts";
 import { watchMatches } from "@/lib/media/engine";
+import { DealAlerts } from "@/components/deals/DealAlerts";
 import type { PricesResponse } from "@/lib/api-types";
 import { formatCents } from "@/lib/money";
 import { formatDate } from "@/lib/format";
@@ -29,6 +30,7 @@ export function RadarView() {
       <p className="prose-narrow -mt-4 text-ink-soft">{t.radar.intro}</p>
       {hydrated && data.alerts.length === 0 && <Notice>{t.radar.empty}</Notice>}
       {byCountry.map(([country, codes]) => <CountryAlerts key={country} country={country} codes={codes} />)}
+      <DealAlerts />
       {hydrated && <ProductWatches />}
 
       <section aria-labelledby="fav-title">

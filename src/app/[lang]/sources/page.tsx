@@ -3,6 +3,7 @@ import { getDictionary } from "@/i18n";
 import { isLocale } from "@/i18n/config";
 import { pageMetadata } from "@/lib/seo";
 import { PageHeader } from "@/components/ui/Notice";
+import { SourcesStatus } from "@/components/deals/SourcesStatus";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/sources">) {
   const { lang } = await params;
@@ -23,6 +24,7 @@ export default async function SourcesPage({ params }: PageProps<"/[lang]/sources
   return (
     <div className="prose-narrow">
       <PageHeader title={s.title} intro={s.intro} />
+      <div className="mb-8"><SourcesStatus /></div>
       <div className="space-y-8">
         {blocks.map((b) => (
           <section key={b.h}>

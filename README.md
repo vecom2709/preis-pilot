@@ -1,10 +1,32 @@
-# Preis-Pilot 2.0 – Vergleichen. Sparen. Besser kaufen.
+# Preis-Pilot 3.0 – Vergleichen. Sparen. Besser kaufen.
 
 Web-App für Lebensmittel **und** Multimedia: Einkaufslisten, Budget, Preisvergleich auf Basis **belegter** Preise, technischer Produktvergleich, Abo-Center und Familienbudget. Für Deutschland und Italien, auf Deutsch, Italienisch und Englisch, ohne Konto nutzbar.
 
-**Stand: Version 2.0** – alle Funktionen aus 1.0 (siehe `docs/FUNKTIONEN-1.0.md`) plus Multimedia-Welt. Was fertig ist und was bewusst fehlt, steht unten und im `ENTWICKLUNGSBERICHT.md`.
+**Stand: Version 3.0 (Ultimate Deal Finder)** – alle Funktionen aus 1.0 und 2.0 plus eine Angebotssuche über echte Quellen. Was fertig ist und was bewusst fehlt, steht unten und im `ENTWICKLUNGSBERICHT.md`.
 
 ---
+
+## Neu in 3.0: Deal-Finder
+
+| Bereich | Umsetzung |
+|---|---|
+| Angebotsquellen | Anschlüsse (`src/lib/deals/connectors/`): Open Prices, GOG, Steam ohne Schlüssel; isthereanydeal, eBay Browse API und Händler-Feeds (Awin, Google Merchant) mit Schlüssel |
+| Abgleich | Dubletten über Land, Händler, GTIN und Zustand; abgelaufene, veraltete und gesperrte Angebote fliegen raus |
+| 32 Kategorien | `src/lib/deals/categories.ts`, erweiterbar; je Kategorie eine Seite `/de/offers/<kategorie>` mit Filtern und Unterkategorien |
+| Deal-Score 0–100 | `src/lib/deals/score.ts`; jeder Punkt hat einen nachlesbaren Grund, Verdacht auf Preisfehler wird markiert |
+| Vergleichspreise | UVP, früherer Händlerpreis, eigener 30-Tage-Tiefstpreis (erst ab 20 Beobachtungstagen) oder Marktpreis (Median aus mindestens 2 anderen Händlern) – nie erfunden |
+| Startseite | Top heute, Gerade im Preis gefallen, Mega-Schnäppchen, Unter 10/25/50 €, größte Nachlässe, Lebensmittel-, Technik-, Auto-Deals, Neue Angebote; leere Bereiche werden ausgeblendet |
+| Suche | `/de/offers`: Sortierung nach Gesamtpreis, Rabatt, Score, Neuheit; Filter nach Kategorie, Händler, Höchstpreis, Zustand, Versandkosten, Mindest-Score |
+| Preisalarm und Merkliste | Glocke im Kopf, Alarme im Radar, Prüfung höchstens alle 30 Minuten, alles im Browser gespeichert |
+| Hintergrundaktualisierung | Netlify Scheduled Function `netlify/functions/deal-update.mts` alle 30 Minuten, 3 Versuche je Quelle, Protokoll der letzten 100 Läufe; lokal `npm run deals:update` |
+| Admin-Dashboard | `/de/admin` mit Basic-Login (Benutzer `admin`, Passwort = `ADMIN_TOKEN`): Kennzahlen, Quellen- und Händlerschalter, Intervalle, Laufprotokoll |
+| Kennzeichnung | Affiliate-Links tragen `rel="sponsored"` und das Label „Werbung“ |
+
+Schlüssel und Freigaben trägst du in `.env.local` (lokal) bzw. als geheime Umgebungsvariable bei Netlify ein, nie im Code. Vorlage: `.env.example`.
+
+```bash
+npm run deals:update -- --alle   # alle Quellen sofort abrufen
+```
 
 ## Schnellstart
 

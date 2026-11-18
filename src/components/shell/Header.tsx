@@ -11,6 +11,7 @@ import { findRubric, rubricOf, rubrics } from "@/lib/rubrics";
 import { Logo } from "./Logo";
 import { SettingsPanel } from "./SettingsPanel";
 import { CartButton } from "@/components/cart/Cart";
+import { AlertBell } from "@/components/deals/DealAlerts";
 import { headerNav, isActive, mainNav, navLabel, routes, type NavKey } from "./nav";
 import { rubricIcons } from "./rubric-icons";
 
@@ -120,6 +121,7 @@ export function HeaderView({ pathname }: { pathname: string }) {
             <IconUser width={21} height={21} />
             <span className="xl:max-2xl:sr-only">{t.nav.account}</span>
           </Link>
+          <AlertBell />
           <CartButton />
           <Link href={`/${locale}/search`} aria-label={t.nav.searchLabel} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10">
             <IconSearch width={24} height={24} />

@@ -257,7 +257,9 @@ function ItemRow({ item, onPatch, onDelete }: { item: ListItem; onPatch: (p: Par
         <p className="text-xs text-ink-soft">
           {item.priceSource === "open_prices" && item.priceDate
             ? `${fmt(t.lists.fromData, { date: formatDate(item.priceDate, intl) })}${item.priceStore ? `, ${item.priceStore}` : ""}`
-            : item.priceSource === "manual" ? t.lists.manualPrice : ""}
+            : item.priceSource === "deal" && item.priceDate
+              ? `${fmt(t.lists.fromDeal, { date: formatDate(item.priceDate.slice(0, 10), intl) })}${item.priceStore ? `, ${item.priceStore}` : ""}`
+              : item.priceSource === "manual" ? t.lists.manualPrice : ""}
         </p>
       </div>
       <label className="sr-only" htmlFor={`q-${item.id}`}>{t.common.quantity}</label>

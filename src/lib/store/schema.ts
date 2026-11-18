@@ -10,7 +10,7 @@ export const ListItemSchema = z.object({
   category: z.string().max(40).default(""),
   /** Preis je Packung/Stück in Cent */
   priceCents: z.number().int().nonnegative().nullable(),
-  priceSource: z.enum(["manual", "open_prices"]).nullable(),
+  priceSource: z.enum(["manual", "open_prices", "deal"]).nullable(),
   priceDate: z.string().nullable(),
   priceStore: z.string().nullable(),
   productCode: z.string().nullable(),
@@ -21,7 +21,7 @@ export const ListItemSchema = z.object({
 /** Einkaufswagen: sammelt Artikel aus allen Rubriken, bevor daraus eine Einkaufsliste wird. Es wird nichts gekauft. */
 export const CartItemSchema = z.object({
   id: z.string(),
-  kind: z.enum(["food", "product"]),
+  kind: z.enum(["food", "product", "deal"]),
   /** Barcode (Lebensmittel) oder ID des erfassten Produkts */
   ref: z.string().min(1).max(80),
   name: z.string().min(1).max(120),
@@ -30,12 +30,32 @@ export const CartItemSchema = z.object({
   image: z.string().max(500).nullable().default(null),
   quantity: z.number().positive().max(999),
   priceCents: z.number().int().nonnegative().nullable(),
-  priceSource: z.enum(["manual", "open_prices"]).nullable(),
+  priceSource: z.enum(["manual", "open_prices", "deal"]).nullable(),
   priceStore: z.string().max(80).nullable(),
   priceDate: z.string().nullable(),
   addedAt: z.string(),
 });
 export type CartItem = z.infer<typeof CartItemSchema>;
+
+/** Preisalarm auf ein gefundenes Angebot (Wunschpreis, Prüfung innerhalb der Plattform) */
+export const DealWatchSchema = z.object({
+  id: z.string(),
+  dealId: z.string().max(160),
+  country: z.enum(["DE", "IT"]),
+  title: z.string().max(200),
+  merchant: z.string().max(80),
+  image: z.string().max(500).nullable(),
+  gtin: z.string().nullable(),
+  targetCents: z.number().int().positive(),
+  lastCents: z.number().int().nonnegative().nullable(),
+  lastCheck: z.string().nullable(),
+  /** gesetzt, sobald der Wunschpreis erreicht wurde */
+  hitAt: z.string().nullable(),
+  expired: z.boolean().default(false),
+  seen: z.boolean().default(false),
+  createdAt: z.string(),
+});
+export type DealWatch = z.infer<typeof DealWatchSchema>;
 
 export const ShoppingListSchema = z.object({
   id: z.string(),
@@ -179,6 +199,7 @@ export const AppDataSchema = z.object({
   savingsGoals: z.array(SavingsGoalSchema).default([]),
   householdPlan: HouseholdPlanSchema.nullable().default(null),
   cart: z.array(CartItemSchema).max(300).default([]),
+  dealWatches: z.array(DealWatchSchema).max(200).default([]),
 });
 
 export type ListItem = z.infer<typeof ListItemSchema>;
@@ -203,5 +224,6 @@ export function emptyData(): AppData {
     savingsGoals: [],
     householdPlan: null,
     cart: [],
+    dealWatches: [],
   };
 }

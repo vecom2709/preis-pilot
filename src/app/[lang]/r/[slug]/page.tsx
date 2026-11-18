@@ -7,11 +7,12 @@ import { isLocale } from "@/i18n/config";
 import { categories } from "@/lib/categories";
 import { findMediaCategory } from "@/lib/media/specs";
 import { findRubric, rubrics } from "@/lib/rubrics";
+import { categoriesOfRubric } from "@/lib/deals/categories";
 import { pageMetadata } from "@/lib/seo";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { BottomStrip, BrandTitle, FeatureRow } from "@/components/home/Blocks";
 import { ComparisonsList } from "@/components/home/ComparisonsWidget";
-import { RubricOffers } from "@/components/rubric/RubricOffers";
+import { RubricDealRow, RubricTop } from "@/components/rubric/RubricDeals";
 import { RubricCategoryIcon } from "@/components/rubric/RubricCategoryIcon";
 import { IconChart, IconChevron, IconCompare, IconCompass, IconPlay } from "@/components/ui/icons";
 
@@ -80,13 +81,15 @@ export default async function RubricPage({ params }: PageProps<"/[lang]/r/[slug]
               <h2 id="top-title" className="flex items-center gap-2.5 text-[1.3rem] font-extrabold">
                 <IconChart width={26} height={26} className="text-saving" />{R.topTitle}
               </h2>
-              <Link href={r.food.length ? `/${lang}/comparisons` : `/${lang}/produkte/compare?cat=${r.products[0]}`} className="inline-flex items-center gap-1 text-sm font-semibold text-pine hover:text-pine-strong">
+              <Link href={r.slug === "lebensmittel" ? `/${lang}/comparisons` : `/${lang}/offers?categories=${categoriesOfRubric(r.slug).join(",")}`} className="inline-flex items-center gap-1 text-sm font-semibold text-pine hover:text-pine-strong">
                 {R.more}<IconChevron width={16} height={16} />
               </Link>
             </div>
-            {r.slug === "lebensmittel" ? <ComparisonsList limit={3} /> : <RubricOffers categories={r.products} rubric={r.slug} />}
+            {r.slug === "lebensmittel" ? <ComparisonsList limit={3} /> : <RubricTop rubric={r.slug} productCategories={r.products} />}
           </section>
         </div>
+
+        <RubricDealRow rubric={r.slug} title={`${t.deals.liveTitle}: ${r.label[lang]}`} />
 
         <section id="kategorien" aria-labelledby="cats-title" className="scroll-mt-40">
           <h2 id="cats-title" className="mb-3 text-[1.5rem] font-extrabold tracking-[-0.015em]">{R.categories}</h2>

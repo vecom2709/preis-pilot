@@ -8,6 +8,7 @@ import { HeroSearch } from "@/components/home/HeroSearch";
 import { ComparisonsList } from "@/components/home/ComparisonsWidget";
 import { BottomStrip, BrandTitle, FeatureRow } from "@/components/home/Blocks";
 import { mediaTiles } from "@/components/home/MediaTileIcons";
+import { DealSections } from "@/components/deals/DealSections";
 import { IconBasket, IconChart, IconChecklist, IconChevron, IconPlay } from "@/components/ui/icons";
 
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
@@ -91,6 +92,9 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
             </ul>
           </section>
         </div>
+
+        {/* Live-Angebote (Preis-Pilot 3.0) */}
+        <DealSections />
 
         {/* Planer + Vergleiche */}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]">

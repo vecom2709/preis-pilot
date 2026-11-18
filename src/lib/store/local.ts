@@ -23,6 +23,11 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+/** Aktueller Stand außerhalb von React (z. B. für Hintergrundprüfungen) */
+export function getData(): AppData {
+  return read();
+}
+
 export function updateData(mutator: (draft: AppData) => AppData): { ok: true } | { ok: false; error: string } {
   const next = mutator(structuredClone(read()));
   const check = AppDataSchema.safeParse(next);
